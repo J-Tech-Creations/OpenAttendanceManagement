@@ -1,0 +1,6 @@
+@OpenAttendanceManagement.SiteAdminApi_HostAddress = http://localhost:5009
+
+GET {{OpenAttendanceManagement.SiteAdminApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

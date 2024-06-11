@@ -1,0 +1,72 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.0.0
+MinimumVisualStudioVersion = 17.8.0.0
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAttendanceManagement.AppHost", "OpenAttendanceManagement.AppHost\OpenAttendanceManagement.AppHost.csproj", "{145E3FED-39A5-4D13-8FEA-A940C5A6362F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAttendanceManagement.ServiceDefaults", "OpenAttendanceManagement.ServiceDefaults\OpenAttendanceManagement.ServiceDefaults.csproj", "{2EFA2433-FA1E-46EB-89A7-6E51F3F5B46C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAttendanceManagement.ApiService", "OpenAttendanceManagement.ApiService\OpenAttendanceManagement.ApiService.csproj", "{149BA992-C68F-48AA-A656-A7B1403F3BAE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAttendanceManagement.Web", "OpenAttendanceManagement.Web\OpenAttendanceManagement.Web.csproj", "{A3F31CA1-E4D7-4627-9865-A68E0A195492}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.AuthService", "OpenAttendanceManagement.AuthService\OpenAttendanceManagement.AuthService.csproj", "{CEB4A9D7-BC5E-48EB-9C8C-1306F5493B40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.SiteAdminApi", "OpenAttendanceManagement.SiteAdminApi\OpenAttendanceManagement.SiteAdminApi.csproj", "{387F6B14-ABC4-4ACF-9120-30A928E23E51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.SiteAdminWeb", "OpenAttendanceManagement.SiteAdminWeb\OpenAttendanceManagement.SiteAdminWeb.csproj", "{62E2A486-5A32-48C1-AF61-0F6C6482F4B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.Domain", "OpenAttendanceManagement.Domain\OpenAttendanceManagement.Domain.csproj", "{28384397-4A17-443C-B020-B3DF4117179B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.AuthCommon", "OpenAttendanceManagement.AuthCommon\OpenAttendanceManagement.AuthCommon.csproj", "{7D66E138-75FB-4DA9-9C30-50B247E4B665}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{145E3FED-39A5-4D13-8FEA-A940C5A6362F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{145E3FED-39A5-4D13-8FEA-A940C5A6362F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{145E3FED-39A5-4D13-8FEA-A940C5A6362F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{145E3FED-39A5-4D13-8FEA-A940C5A6362F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EFA2433-FA1E-46EB-89A7-6E51F3F5B46C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EFA2433-FA1E-46EB-89A7-6E51F3F5B46C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EFA2433-FA1E-46EB-89A7-6E51F3F5B46C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EFA2433-FA1E-46EB-89A7-6E51F3F5B46C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{149BA992-C68F-48AA-A656-A7B1403F3BAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{149BA992-C68F-48AA-A656-A7B1403F3BAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{149BA992-C68F-48AA-A656-A7B1403F3BAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{149BA992-C68F-48AA-A656-A7B1403F3BAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3F31CA1-E4D7-4627-9865-A68E0A195492}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3F31CA1-E4D7-4627-9865-A68E0A195492}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3F31CA1-E4D7-4627-9865-A68E0A195492}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3F31CA1-E4D7-4627-9865-A68E0A195492}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEB4A9D7-BC5E-48EB-9C8C-1306F5493B40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEB4A9D7-BC5E-48EB-9C8C-1306F5493B40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEB4A9D7-BC5E-48EB-9C8C-1306F5493B40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEB4A9D7-BC5E-48EB-9C8C-1306F5493B40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{387F6B14-ABC4-4ACF-9120-30A928E23E51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{387F6B14-ABC4-4ACF-9120-30A928E23E51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{387F6B14-ABC4-4ACF-9120-30A928E23E51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{387F6B14-ABC4-4ACF-9120-30A928E23E51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62E2A486-5A32-48C1-AF61-0F6C6482F4B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62E2A486-5A32-48C1-AF61-0F6C6482F4B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62E2A486-5A32-48C1-AF61-0F6C6482F4B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62E2A486-5A32-48C1-AF61-0F6C6482F4B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28384397-4A17-443C-B020-B3DF4117179B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28384397-4A17-443C-B020-B3DF4117179B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28384397-4A17-443C-B020-B3DF4117179B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28384397-4A17-443C-B020-B3DF4117179B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D66E138-75FB-4DA9-9C30-50B247E4B665}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D66E138-75FB-4DA9-9C30-50B247E4B665}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D66E138-75FB-4DA9-9C30-50B247E4B665}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D66E138-75FB-4DA9-9C30-50B247E4B665}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ACB6AB65-54EC-4E66-A5F5-241CDFF774BA}
+	EndGlobalSection
+EndGlobal
