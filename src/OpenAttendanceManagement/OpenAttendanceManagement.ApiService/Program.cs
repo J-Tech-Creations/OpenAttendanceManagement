@@ -33,33 +33,29 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
-    });
-
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-});
+// builder.Services.AddAuthentication(options =>
+//     {
+//         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//     })
+//     .AddJwtBearer(options =>
+//     {
+//         options.TokenValidationParameters = new TokenValidationParameters
+//         {
+//             ValidateIssuer = true,
+//             ValidateAudience = true,
+//             ValidateLifetime = true,
+//             ValidateIssuerSigningKey = true,
+//             ValidIssuer = builder.Configuration["Jwt:Issuer"],
+//             ValidAudience = builder.Configuration["Jwt:Audience"],
+//             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+//         };
+//     });
+// builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 builder.AddNpgsqlDbContext<AuthDbContext>("authdb");
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<AuthDbContext>()
-    .AddDefaultTokenProviders();
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddEntityFrameworkStores<AuthDbContext>();
 
 var app = builder.Build();
 
@@ -92,7 +88,7 @@ app.MapGet("/weatherforecast", () =>
         .ToArray();
     return forecast;
 }).WithOpenApi().RequireAuthorization();
-
+app.MapIdentityApi<IdentityUser>();
 app.MapDefaultEndpoints();
 
 app.Run();

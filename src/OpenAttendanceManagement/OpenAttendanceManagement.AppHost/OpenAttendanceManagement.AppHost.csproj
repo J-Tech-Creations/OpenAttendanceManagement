@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenAttendanceManagement.ApiService\OpenAttendanceManagement.ApiService.csproj" />
-    <ProjectReference Include="..\OpenAttendanceManagement.AuthService\OpenAttendanceManagement.AuthService.csproj" />
     <ProjectReference Include="..\OpenAttendanceManagement.Web\OpenAttendanceManagement.Web.csproj" />
   </ItemGroup>
 
