@@ -1,0 +1,6 @@
+@OpenAttendanceManagement.AuthService_HostAddress = http://localhost:5158
+
+GET {{OpenAttendanceManagement.AuthService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
