@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="ResultBoxes" Version="0.3.11" />
+      <PackageReference Include="Sekiban.Core" Version="0.19.1" />
+    </ItemGroup>
+
 </Project>
