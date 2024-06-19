@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObject;
+namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 
 public record TenantName(
     [property: RegularExpression(@"^[a-z0-9]{1,30}$")]
