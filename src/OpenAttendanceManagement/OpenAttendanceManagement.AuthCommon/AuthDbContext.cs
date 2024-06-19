@@ -4,4 +4,6 @@ using Microsoft.EntityFrameworkCore;
 namespace OpenAttendanceManagement.AuthCommon;
 
 public class AuthDbContext(DbContextOptions<AuthDbContext> options)
-    : IdentityDbContext<IdentityUser>(options);
+    : IdentityDbContext<IdentityUser>(options)
+{
+}

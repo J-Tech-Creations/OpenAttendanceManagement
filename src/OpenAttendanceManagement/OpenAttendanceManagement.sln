@@ -10,8 +10,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAttendanceManagement.Ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAttendanceManagement.Web", "OpenAttendanceManagement.Web\OpenAttendanceManagement.Web.csproj", "{A3F31CA1-E4D7-4627-9865-A68E0A195492}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.AuthService", "OpenAttendanceManagement.AuthService\OpenAttendanceManagement.AuthService.csproj", "{CEB4A9D7-BC5E-48EB-9C8C-1306F5493B40}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.SiteAdminApi", "OpenAttendanceManagement.SiteAdminApi\OpenAttendanceManagement.SiteAdminApi.csproj", "{387F6B14-ABC4-4ACF-9120-30A928E23E51}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.SiteAdminWeb", "OpenAttendanceManagement.SiteAdminWeb\OpenAttendanceManagement.SiteAdminWeb.csproj", "{62E2A486-5A32-48C1-AF61-0F6C6482F4B8}"
@@ -42,10 +40,6 @@ Global
 		{A3F31CA1-E4D7-4627-9865-A68E0A195492}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3F31CA1-E4D7-4627-9865-A68E0A195492}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3F31CA1-E4D7-4627-9865-A68E0A195492}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CEB4A9D7-BC5E-48EB-9C8C-1306F5493B40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CEB4A9D7-BC5E-48EB-9C8C-1306F5493B40}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CEB4A9D7-BC5E-48EB-9C8C-1306F5493B40}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CEB4A9D7-BC5E-48EB-9C8C-1306F5493B40}.Release|Any CPU.Build.0 = Release|Any CPU
 		{387F6B14-ABC4-4ACF-9120-30A928E23E51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{387F6B14-ABC4-4ACF-9120-30A928E23E51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{387F6B14-ABC4-4ACF-9120-30A928E23E51}.Release|Any CPU.ActiveCfg = Release|Any CPU
