@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-using OpenAttendanceManagement.Web.Exceptions;
+using OpenAttendanceManagement.Common.Exceptions;
 using ResultBoxes;
 using System.Net.Http.Headers;
-namespace OpenAttendanceManagement.Web.Tokens;
+using System.Net.Http.Json;
+namespace OpenAttendanceManagement.AuthCommon;
 
 public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpClient httpClient)
 {
