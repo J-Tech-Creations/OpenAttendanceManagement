@@ -1,6 +1,7 @@
 using OpenAttendanceManagement.Web.Exceptions;
 using OpenAttendanceManagement.Web.Tokens;
 using ResultBoxes;
+using System.Net.Http.Headers;
 namespace OpenAttendanceManagement.Web;
 
 public class WeatherApiClient(HttpClient httpClient)
@@ -34,8 +35,11 @@ public class LoginClient(HttpClient httpClient, TokenService tokenService)
     public async Task<ResultBox<LoginResponse>> LoginAsync(
         LoginRequest request,
         CancellationToken cancellationToken = default)
-        => await ResultBox
-            .WrapTry(() => httpClient.PostAsJsonAsync("login", request, cancellationToken))
+        => await tokenService.GetTokenAsync()
+            .Do(
+                token => httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token))
+            .ConveyorWrapTry(() => httpClient.PostAsJsonAsync("login", request, cancellationToken))
             .DoWrapTry(response => response.EnsureSuccessStatusCode())
             .Conveyor(
                 async response => ResultBox.CheckNull(

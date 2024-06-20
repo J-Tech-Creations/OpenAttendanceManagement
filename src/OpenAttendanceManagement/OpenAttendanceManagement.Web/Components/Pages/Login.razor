@@ -6,7 +6,7 @@
 @inject TokenService TokenService
 @inject NavigationManager NavigationManager
 
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(false))
 
 <h3>Login</h3>
 
@@ -58,4 +58,12 @@
             NavigationManager.NavigateTo("/");
         }
     }
+    protected override Task OnParametersSetAsync()
+        => TokenService.GetTokenAsync()
+            .Scan(
+                _ =>
+                {
+                    NavigationManager.NavigateTo("/");
+                },
+                _ => { });
 }

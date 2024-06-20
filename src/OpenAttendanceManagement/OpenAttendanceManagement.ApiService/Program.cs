@@ -97,6 +97,7 @@ app.MapGet(
             return forecast;
         })
     .WithOpenApi()
+    .RequireAuthorization()
     ;
 app.MapIdentityApi<IdentityUser>();
 app.MapDefaultEndpoints();
