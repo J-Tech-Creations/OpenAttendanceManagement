@@ -1,4 +1,4 @@
-namespace OpenAttendanceManagement.Web;
+namespace OpenAttendanceManagement.Web.Apis;
 
 public record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

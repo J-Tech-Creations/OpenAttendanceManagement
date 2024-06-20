@@ -1,6 +1,7 @@
+using Projects;
 var builder = DistributedApplication.CreateBuilder(args);
 
-var pgsqlPassword = builder.AddParameter("postgresPassword", secret: true);
+var pgsqlPassword = builder.AddParameter("postgresPassword", true);
 
 var postgresHost = builder.AddPostgres("oamDb", password: pgsqlPassword)
     .WithDataVolume()
@@ -10,13 +11,20 @@ var authDb = postgresHost.AddDatabase("authdb");
 var eventDb = postgresHost.AddDatabase("eventdb");
 
 
-var apiService = builder.AddProject<Projects.OpenAttendanceManagement_ApiService>("apiservice")
+var apiService = builder.AddProject<OpenAttendanceManagement_ApiService>("apiservice")
     .WithReference(authDb);
 
 
-builder.AddProject<Projects.OpenAttendanceManagement_Web>("webfrontend")
+builder.AddProject<OpenAttendanceManagement_Web>("webfrontend")
     .WithExternalHttpEndpoints()
     .WithReference(apiService);
 
+var siteAdminApiService = builder
+    .AddProject<OpenAttendanceManagement_SiteAdminApi>("siteadminapiservice")
+    .WithReference(authDb);
+
+builder.AddProject<OpenAttendanceManagement_SiteAdminWeb>("siteadminweb")
+    .WithExternalHttpEndpoints()
+    .WithReference(siteAdminApiService);
 
 builder.Build().Run();

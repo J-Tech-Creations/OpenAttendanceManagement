@@ -1,7 +1,15 @@
-﻿@page "/"
+﻿@inject TokenService TokenService
+@inject NavigationManager NavigationManager
+@page "/"
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+@code {
+    protected override Task OnParametersSetAsync()
+        => TokenService.GetTokenAsync()
+            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+}

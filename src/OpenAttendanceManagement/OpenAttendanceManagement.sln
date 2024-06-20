@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.Do
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.AuthCommon", "OpenAttendanceManagement.AuthCommon\OpenAttendanceManagement.AuthCommon.csproj", "{7D66E138-75FB-4DA9-9C30-50B247E4B665}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.Common", "OpenAttendanceManagement.Common\OpenAttendanceManagement.Common.csproj", "{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{7D66E138-75FB-4DA9-9C30-50B247E4B665}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D66E138-75FB-4DA9-9C30-50B247E4B665}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D66E138-75FB-4DA9-9C30-50B247E4B665}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

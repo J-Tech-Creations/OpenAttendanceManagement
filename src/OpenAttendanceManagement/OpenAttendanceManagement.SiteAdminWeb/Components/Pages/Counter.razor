@@ -1,4 +1,6 @@
-﻿@page "/counter"
+﻿@inject TokenService TokenService
+@inject NavigationManager NavigationManager
+@page "/counter"
 @rendermode InteractiveServer
 
 <PageTitle>Counter</PageTitle>
@@ -10,10 +12,14 @@
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
 @code {
-    private int currentCount = 0;
+    private int currentCount;
 
     private void IncrementCount()
     {
         currentCount++;
     }
+
+    protected override Task OnParametersSetAsync()
+        => TokenService.GetTokenAsync()
+            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
 }

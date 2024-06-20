@@ -1,7 +1,7 @@
+using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.ServiceDefaults;
-using OpenAttendanceManagement.Web;
+using OpenAttendanceManagement.Web.Apis;
 using OpenAttendanceManagement.Web.Components;
-using OpenAttendanceManagement.Web.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.

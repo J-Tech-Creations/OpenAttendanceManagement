@@ -1,40 +1,8 @@
-using OpenAttendanceManagement.Web.Exceptions;
-using OpenAttendanceManagement.Web.Tokens;
+using OpenAttendanceManagement.Common.Exceptions;
 using ResultBoxes;
-using System.Net.Http.Headers;
-namespace OpenAttendanceManagement.Web;
+using System.Net.Http.Json;
+namespace OpenAttendanceManagement.AuthCommon;
 
-public class WeatherApiClient(HttpClient httpClient, TokenService tokenService)
-{
-    public async Task<WeatherForecast[]> GetWeatherAsync(
-        int maxItems = 10,
-        CancellationToken cancellationToken = default)
-    {
-        List<WeatherForecast>? forecasts = null;
-
-        await tokenService.GetTokenAsync()
-            .Do(
-                success => httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", success));
-
-        await foreach (var forecast in httpClient.GetFromJsonAsAsyncEnumerable<WeatherForecast>(
-            "/weatherforecast",
-            cancellationToken))
-        {
-            if (forecasts?.Count >= maxItems)
-            {
-                break;
-            }
-            if (forecast is not null)
-            {
-                forecasts ??= [];
-                forecasts.Add(forecast);
-            }
-        }
-
-        return forecasts?.ToArray() ?? [];
-    }
-}
 public class LoginClient(HttpClient httpClient, TokenService tokenService)
 {
     public Task<ResultBox<LoginResponse>> LoginAsync(
