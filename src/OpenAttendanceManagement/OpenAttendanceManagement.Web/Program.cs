@@ -1,6 +1,7 @@
 using OpenAttendanceManagement.ServiceDefaults;
 using OpenAttendanceManagement.Web;
 using OpenAttendanceManagement.Web.Components;
+using OpenAttendanceManagement.Web.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
@@ -20,6 +21,23 @@ builder.Services.AddHttpClient<WeatherApiClient>(
         client.BaseAddress = new Uri("https+http://apiservice");
     });
 
+builder.Services.AddHttpClient<LoginClient>(
+    client =>
+    {
+        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
+        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
+        client.BaseAddress = new Uri("https+http://apiservice");
+    });
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(
+    options =>
+    {
+        options.IdleTimeout = TimeSpan.FromMinutes(30);
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+    });
+builder.Services.AddTransient<TokenService>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -35,6 +53,8 @@ app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.UseOutputCache();
+
+app.UseSession();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

@@ -1,7 +1,19 @@
 ﻿@page "/"
+@using OpenAttendanceManagement.Web.Tokens
+@using ResultBoxes
+@inject TokenService TokenService
+@inject NavigationManager NavigationManager
+@rendermode @(new InteractiveServerRenderMode(false))
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+
+@code {
+    protected override Task OnParametersSetAsync()
+        => TokenService.GetTokenAsync()
+            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+}

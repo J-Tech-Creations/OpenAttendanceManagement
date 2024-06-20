@@ -1,0 +1,33 @@
+@page "/form"
+@rendermode InteractiveServer
+
+<EditForm Model="@user" OnValidSubmit="HandleValidSubmit" FormName="form">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <div>
+        <label for="name">Name:</label>
+        <InputText id="name" @bind-Value="user.Name"/>
+    </div>
+    <div>
+        <label for="email">Email:</label>
+        <InputText id="email" @bind-Value="user.Email"/>
+    </div>
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code {
+    public class UserViewModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+    }
+
+    private readonly UserViewModel user = new();
+
+    private void HandleValidSubmit()
+    {
+        // フォームのデータが有効な場合の処理
+        Console.WriteLine($"Name: {user.Name}, Email: {user.Email}");
+    }
+}
