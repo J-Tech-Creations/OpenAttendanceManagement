@@ -4,6 +4,7 @@ using Microsoft.OpenApi.Models;
 using OpenAttendanceManagement.ApiService;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.ServiceDefaults;
+using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
@@ -99,6 +100,42 @@ app.MapGet(
     .WithOpenApi()
     .RequireAuthorization()
     ;
+
+app.MapGet(
+        "/user/roles",
+        async (
+            UserManager<IdentityUser> userManager,
+            HttpContext httpContext,
+            AuthDbContext authDbContext) =>
+        {
+            var userIdClaim =
+                httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Results.NotFound("User not found.");
+            }
+
+            var user = await userManager.FindByIdAsync(userIdClaim.Value);
+            if (user == null)
+            {
+                return Results.NotFound($"User with ID {userIdClaim.Value} not found.");
+            }
+
+            var roles = authDbContext.UserRoles.Where(m => m.UserId == user.Id)
+                .Select(m => m.RoleId)
+                .Join(
+                    authDbContext.Roles,
+                    roleId => roleId,
+                    role => role.Id,
+                    (roleId, role) => role.Name)
+                .Where(m => m != null)
+                .ToList();
+            return Results.Ok(roles);
+        })
+    .WithName("GetUserRoles")
+    .WithOpenApi()
+    .RequireAuthorization();
+
 app.MapIdentityApi<IdentityUser>();
 app.MapDefaultEndpoints();
 

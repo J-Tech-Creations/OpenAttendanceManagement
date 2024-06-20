@@ -28,6 +28,13 @@ builder.Services.AddHttpClient<LoginClient>(
         // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
         client.BaseAddress = new Uri("https+http://apiservice");
     });
+builder.Services.AddHttpClient<TokenService>(
+    client =>
+    {
+        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
+        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
+        client.BaseAddress = new Uri("https+http://apiservice");
+    });
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(
@@ -37,7 +44,6 @@ builder.Services.AddSession(
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
     });
-builder.Services.AddTransient<TokenService>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

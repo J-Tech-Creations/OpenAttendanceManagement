@@ -49,6 +49,12 @@
             }
         </div>
         <div class="nav-item px-3">
+            @if (TokenService.IsSiteAdmin)
+            {
+                <NavLink class="nav-link" href="admin">
+                    <span class="bi bi-list-nested" aria-hidden="true"></span> Admin
+                </NavLink>
+            }
         </div>
     </nav>
 </div>
