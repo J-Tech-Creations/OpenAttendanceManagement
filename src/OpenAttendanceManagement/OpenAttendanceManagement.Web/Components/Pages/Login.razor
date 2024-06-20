@@ -1,9 +1,69 @@
-@page "/Login"
+@page "/login"
+@using OpenAttendanceManagement.Web.Tokens
+@using OpenAttendanceManagement.Web.ViewModels
+@using ResultBoxes
+@inject LoginClient LoginClient
+@inject TokenService TokenService
+@inject NavigationManager NavigationManager
 
-<PageTitle>Login</PageTitle>
+@rendermode @(new InteractiveServerRenderMode(false))
 
-<h1>Login</h1>
+<h3>Login</h3>
+
+<EditForm Model="@loginForm" OnValidSubmit="HandleLogin" FormName="Login">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <div>
+        <label>Email:</label>
+        <InputText @bind-Value="loginForm.Email"/>
+    </div>
+    <div>
+        <label>Password:</label>
+        <InputText @bind-Value="loginForm.Password" type="password"/>
+    </div>
+    <div>
+        <InputCheckbox @bind-Value="loginForm.RememberMe"/>
+        <label>Remember me</label>
+    </div>
+    <button type="submit">Login</button>
+</EditForm>
+
+@if (loggedIn)
+{
+    <p>Login successful! Token: @TokenService.SavedToken.Value</p>
+}
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p>@errorMessage</p>
+}
 
 @code {
+    private readonly LoginForm loginForm = new();
+    private bool loggedIn => TokenService.HasToken;
+    private string? errorMessage;
 
+    private async Task HandleLogin()
+    {
+        errorMessage = await LoginClient.LoginAsync(
+                new LoginClient.LoginRequest
+                    { Email = loginForm.Email, Password = loginForm.Password, UseCookies = false },
+                CancellationToken.None)
+            .Match(success => string.Empty, error => error.Message);
+        await TokenService.GetTokenAsync();
+
+        // if login was successful, redirect to /
+        if (TokenService.SavedToken.HasValue)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+    protected override Task OnParametersSetAsync()
+        => TokenService.GetTokenAsync()
+            .Scan(
+                _ =>
+                {
+                    NavigationManager.NavigateTo("/");
+                },
+                _ => { });
 }
