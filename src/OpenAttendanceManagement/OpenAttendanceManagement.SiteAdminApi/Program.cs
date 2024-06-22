@@ -2,7 +2,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using OpenAttendanceManagement.AuthCommon;
+using OpenAttendanceManagement.Domain;
 using OpenAttendanceManagement.ServiceDefaults;
+using Sekiban.Core.Dependency;
+using Sekiban.Infrastructure.Postgres;
+using Sekiban.Web.Authorizations;
+using Sekiban.Web.Authorizations.Definitions;
+using Sekiban.Web.Dependency;
 using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,11 +45,19 @@ builder.Services.AddSwaggerGen(
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddAuthentication();
 builder.AddNpgsqlDbContext<AuthDbContext>("authdb");
+builder.Services.AddScoped<UserManager<IdentityUser>>();
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AuthDbContext>();
 
-
+builder.AddSekibanWithDependency<OamDomainDependency>();
+builder.AddSekibanPostgresDbWithAzureBlobStorage();
+builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
+    definition => definition.AuthorizationDefinitions =
+        new AuthorizeDefinitionCollectionWithUserManager<IdentityUser>(
+            new AllowOnlyWithRolesAndDenyIfNot<AllMethod, OamRoles>(OamRoles.SiteAdmin)));
 
 var app = builder.Build();
 
@@ -55,7 +69,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapGet(
         "/user/roles",
@@ -76,7 +90,6 @@ app.MapGet(
             {
                 return Results.NotFound($"User with ID {userIdClaim.Value} not found.");
             }
-
             var roles = authDbContext.UserRoles.Where(m => m.UserId == user.Id)
                 .Select(m => m.RoleId)
                 .Join(

@@ -13,6 +13,16 @@ public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpC
     public List<string> Roles { get; private set; } = new();
     public bool HasToken => SavedToken.HasValue;
 
+    public Task<ResultBox<UnitValue>> LogOutAsync()
+        => ResultBox.WrapTry(
+            async () =>
+            {
+                await protectedSessionStorage.DeleteAsync(TokenKey);
+                SavedToken = OptionalValue<string>.Empty;
+                Roles = new List<string>();
+                return UnitValue.Unit;
+            });
+
     public Task<ResultBox<UnitValue>> SaveTokenAsync(string token)
         => ResultBox.WrapTry(
                 async () =>

@@ -1,10 +1,14 @@
 ﻿@inject TokenService TokenService
 @inject NavigationManager NavigationManager
 @page "/tenants"
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects
+@using Sekiban.Core.Query.QueryModel
 @attribute [StreamRendering]
 @attribute [OutputCache(Duration = 5)]
-@inject WeatherApiClient WeatherApi
-
+@inject ApiClient Api
+@inject IJSRuntime JsRuntime
 
 <PageTitle>Weather</PageTitle>
 
@@ -12,7 +16,7 @@
 
 <p>This component demonstrates showing data.</p>
 
-@if (forecasts == null)
+@if (!tenants.IsSuccess)
 {
     <p>
         <em>Loading...</em>
@@ -23,35 +27,107 @@ else
     <table class="table">
         <thead>
         <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
+            <th>id</th>
+            <th>Code</th>
+            <th>Name</th>
         </tr>
         </thead>
         <tbody>
-        @foreach (var forecast in forecasts)
+        @if (tenants.IsSuccess)
         {
-            <tr>
-                <td>@forecast.Date.ToShortDateString()</td>
-                <td>@forecast.TemperatureC</td>
-                <td>@forecast.TemperatureF</td>
-                <td>@forecast.Summary</td>
-            </tr>
+            @foreach (var forecast in tenants.GetValue().Items)
+            {
+                <tr>
+                    <td>@forecast.TenantId</td>
+                    <td>@forecast.TenantCode</td>
+                    <td>@forecast.TenantName</td>
+                </tr>
+            }
         }
         </tbody>
     </table>
 }
 
-@code {
-    private WeatherForecast[]? forecasts;
+<button class="btn btn-primary" onclick="$('#addTenantModal').modal('show')">Add Tenant</button>
+<div class="modal fade" id="addTenantModal" tabindex="-1" role="dialog" aria-labelledby="addTenantModalLabel" aria-hidden="true" @ref="addTenantModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTenantModalLabel">Add Tenant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@addModel" OnValidSubmit="HandleAddModelSubmit">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    <div class="form-group">
+                        <label for="tenantCode">Code</label>
+                        <InputText id="tenantCode" class="form-control" @bind-Value="addModel.TenantCode"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenantName">Name</label>
+                        <InputText id="tenantName" class="form-control" @bind-Value="addModel.TenantName"/>
+                    </div>
+                    @if (!string.IsNullOrEmpty(addModel.AddError))
+                    {
+                        <p>@addModel.AddError</p>
+                    }
+                    <button type="submit" class="btn btn-primary">Add Tenant</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.closeModal = function() {
+        $('#addTenantModal').modal('hide');
+    }
+</script>
 
+@code {
+    private ResultBox<ListQueryResult<SimpleTenantQuery.Record>> tenants = ResultBox<ListQueryResult<SimpleTenantQuery.Record>>.Error(new ApplicationException("loading..."));
+    private ElementReference addTenantModal;
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await WeatherApi.GetWeatherAsync();
+        tenants = await Api.GetTenants();
     }
 
+    private class AddModel
+    {
+        public string TenantCode { get; set; } = string.Empty;
+        public string TenantName { get; set; } = string.Empty;
+        public string? AddError { get; set; }
+    }
+    private async Task HandleAddModelSubmit()
+    {
+        await Task.CompletedTask;
+        Console.WriteLine(addModel.TenantCode);
+        var result = await Api.AddTenant(new CreateOamTenant(new TenantCode(addModel.TenantCode), new TenantName(addModel.TenantName)));
+        if (result.IsSuccess)
+        {
+            tenants = await Api.GetTenants();
+            addModel.TenantCode = string.Empty;
+            addModel.TenantName = string.Empty;
+            await JsRuntime.InvokeVoidAsync("closeModal");
+        }
+        else
+        {
+            addModel.AddError = "登録に失敗しました。コードの重複などにご注意ください。";
+        }
+    }
+    private readonly AddModel addModel = new();
     protected override Task OnParametersSetAsync()
         => TokenService.GetTokenAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+            .ScanResult(
+                result =>
+                {
+                    if (result.IsSuccess == false || !TokenService.IsSiteAdmin)
+                    {
+                        NavigationManager.NavigateTo("/login");
+                    }
+                });
+
+
 }

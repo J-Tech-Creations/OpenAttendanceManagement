@@ -1,4 +1,5 @@
 ﻿@inject TokenService TokenService
+@inject NavigationManager NavigationManager
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -53,6 +54,16 @@
                 </NavLink>
             }
         </div>
+        <div class="nav-item px-3">
+            @if (TokenService.HasToken && TokenService.IsSiteAdmin)
+            {
+                <div @onclick="LogOut">
+                    <NavLink class="nav-link">
+                        <span class="bi bi-list-nested" aria-hidden="true"></span> Log Out
+                    </NavLink>
+                </div>
+            }
+        </div>
     </nav>
 </div>
 
@@ -66,4 +77,12 @@
             {
                 StateHasChanged();
             });
+    private async Task LogOut()
+    {
+        var result = await TokenService.LogOutAsync();
+        if (result.IsSuccess)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+    }
 }

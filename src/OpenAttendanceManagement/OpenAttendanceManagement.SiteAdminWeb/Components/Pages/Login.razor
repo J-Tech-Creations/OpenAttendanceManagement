@@ -26,10 +26,6 @@
     <button type="submit">Login</button>
 </EditForm>
 
-@if (loggedIn)
-{
-    <p>Login successful! Token: @TokenService.SavedToken.Value</p>
-}
 @if (!string.IsNullOrEmpty(errorMessage))
 {
     <p>@errorMessage</p>
@@ -54,19 +50,24 @@
                 CancellationToken.None)
             .Match(success => string.Empty, error => error.Message);
         await TokenService.GetTokenAsync();
-
+        if (!TokenService.IsSiteAdmin)
+        {
+            errorMessage = "管理者アカウントでないとログインできません。";
+        }
         // if login was successful, redirect to /
-        if (TokenService.SavedToken.HasValue)
+        if (TokenService.SavedToken.HasValue && TokenService.IsSiteAdmin)
         {
             NavigationManager.NavigateTo("/");
         }
     }
     protected override Task OnParametersSetAsync()
         => TokenService.GetTokenAsync()
-            .Scan(
-                _ =>
+            .ScanResult(
+                result =>
                 {
-                    NavigationManager.NavigateTo("/");
-                },
-                _ => { });
+                    if (result.IsSuccess || TokenService.IsSiteAdmin)
+                    {
+                        NavigationManager.NavigateTo("/login");
+                    }
+                });
 }

@@ -8,11 +8,15 @@ var postgresHost = builder.AddPostgres("oamDb", password: pgsqlPassword)
     .WithPgAdmin();
 
 var authDb = postgresHost.AddDatabase("authdb");
-var eventDb = postgresHost.AddDatabase("eventdb");
+var eventDb = postgresHost.AddDatabase("sekibanPostgres");
 
+var azureStorage = builder.AddAzureStorage("eventStorage")
+    .RunAsEmulator(configure => configure.WithDataVolume());
+var blob = azureStorage.AddBlobs("sekibanBlob");
 
 var apiService = builder.AddProject<OpenAttendanceManagement_ApiService>("apiservice")
-    .WithReference(authDb);
+    .WithReference(authDb)
+    .WithReference(eventDb);
 
 
 builder.AddProject<OpenAttendanceManagement_Web>("webfrontend")
@@ -21,7 +25,9 @@ builder.AddProject<OpenAttendanceManagement_Web>("webfrontend")
 
 var siteAdminApiService = builder
     .AddProject<OpenAttendanceManagement_SiteAdminApi>("siteadminapiservice")
-    .WithReference(authDb);
+    .WithReference(authDb)
+    .WithReference(eventDb)
+    .WithReference(blob);
 
 builder.AddProject<OpenAttendanceManagement_SiteAdminWeb>("siteadminweb")
     .WithExternalHttpEndpoints()
