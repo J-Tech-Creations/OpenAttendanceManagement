@@ -9,12 +9,12 @@
     <ItemGroup>
         <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.1"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.6"/>
+        <PackageReference Include="Sekiban.Infrastructure.Postgres" Version="0.20.0" />
+        <PackageReference Include="Sekiban.Web" Version="0.20.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\..\Sekiban\src\Sekiban.Infrastructure.Postgres\Sekiban.Infrastructure.Postgres.csproj"/>
-        <ProjectReference Include="..\..\..\..\Sekiban\src\Sekiban.Web\Sekiban.Web.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.AuthCommon\OpenAttendanceManagement.AuthCommon.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.Common\OpenAttendanceManagement.Common.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.Domain\OpenAttendanceManagement.Domain.csproj"/>
