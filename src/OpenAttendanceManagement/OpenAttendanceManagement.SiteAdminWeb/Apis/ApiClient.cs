@@ -70,4 +70,25 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
                         cancellationToken),
                     new TenantAddException("ログインに失敗しました。")))
             .Remap(_ => UnitValue.Unit);
+
+    public Task<ResultBox<UnitValue>> ChangeTenantName(
+        ChangeOamTenantName command,
+        CancellationToken cancellationToken = default) =>
+        tokenService.GetTokenAsync()
+            .Do(
+                success => httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", success))
+            .Conveyor(
+                async _ => ResultBox.CheckNull(
+                    await httpClient.PostAsJsonAsync(
+                        "/api/command/oamtenant/changeoamtenantname",
+                        command,
+                        cancellationToken)))
+            .DoWrapTry(response => response.EnsureSuccessStatusCode())
+            .Conveyor(
+                async response => ResultBox.CheckNull(
+                    await response.Content.ReadFromJsonAsync<CommandExecutorResponse>(
+                        cancellationToken),
+                    new TenantChangeNameException("ログインに失敗しました。")))
+            .Remap(_ => UnitValue.Unit);
 }

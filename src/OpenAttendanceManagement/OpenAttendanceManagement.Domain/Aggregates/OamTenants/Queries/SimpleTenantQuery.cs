@@ -16,7 +16,7 @@ public record SimpleTenantQuery(string NameFilter, int? PageSize, int? PageNumbe
                         m.Payload.TenantCode.Value.Contains(NameFilter))
                 .Select(
                     m => new Record(
-                        m.AggregateId.ToString(),
+                        m.AggregateId,
                         m.Payload.TenantCode.Value,
                         m.Payload.TenantName.Value)));
 
@@ -24,5 +24,5 @@ public record SimpleTenantQuery(string NameFilter, int? PageSize, int? PageNumbe
         IEnumerable<Record> filteredList,
         IQueryContext context) => ResultBox.FromValue(
         filteredList.OrderBy(m => m.TenantCode).ThenBy(m => m.TenantName).AsEnumerable());
-    public record Record(string TenantId, string TenantCode, string TenantName);
+    public record Record(Guid TenantId, string TenantCode, string TenantName);
 }

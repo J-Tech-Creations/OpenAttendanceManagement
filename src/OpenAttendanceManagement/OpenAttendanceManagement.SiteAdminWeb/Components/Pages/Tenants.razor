@@ -30,17 +30,22 @@ else
             <th>id</th>
             <th>Code</th>
             <th>Name</th>
+            <th>Action <button class="btn btn-primary" onclick="$('#addTenantModal').modal('show')">Add Tenant</button></th>
         </tr>
         </thead>
         <tbody>
         @if (tenants.IsSuccess)
         {
-            @foreach (var forecast in tenants.GetValue().Items)
+            @foreach (var tenant in tenants.GetValue().Items)
             {
                 <tr>
-                    <td>@forecast.TenantId</td>
-                    <td>@forecast.TenantCode</td>
-                    <td>@forecast.TenantName</td>
+                    <td>@tenant.TenantId</td>
+                    <td>@tenant.TenantCode</td>
+                    <td>@tenant.TenantName</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => OpenChangeNameModal(tenant)" DisplayChangeModal>Change Name</button>
+                        <button class="btn btn-danger">Delete</button>
+                    </td>
                 </tr>
             }
         }
@@ -48,8 +53,36 @@ else
     </table>
 }
 
-<button class="btn btn-primary" onclick="$('#addTenantModal').modal('show')">Add Tenant</button>
-<div class="modal fade" id="addTenantModal" tabindex="-1" role="dialog" aria-labelledby="addTenantModalLabel" aria-hidden="true" @ref="addTenantModal">
+<div class="modal fade" id="changeTenantNameModal" tabindex="-1" role="dialog" aria-labelledby="changeTenantNameLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeTenantNameLabel">Change Tenant Name</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@changeNameModel" OnValidSubmit="HandleChangeModelSubmit">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    <div class="form-group">
+                        <label for="tenantCode">New Tenant Name</label>
+                        <InputText id="tenantNameChange" class="form-control" @bind-Value="changeNameModel.TenantName"/>
+                    </div>
+                    @if (!string.IsNullOrEmpty(addModel.AddError))
+                    {
+                        <p>@changeNameModel.ChangeError</p>
+                    }
+                    <button type="submit" class="btn btn-primary">Change Tenant Name</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="addTenantModal" tabindex="-1" role="dialog" aria-labelledby="addTenantModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -80,15 +113,19 @@ else
         </div>
     </div>
 </div>
+
+
 <script>
-    window.closeModal = function() {
-        $('#addTenantModal').modal('hide');
+    function DisplayAddModal(param) {
+        $('#addTenantModal').modal(param);
+    }
+    function DisplayChangeModal (param) {
+        $('#changeTenantNameModal').modal(param);
     }
 </script>
 
 @code {
     private ResultBox<ListQueryResult<SimpleTenantQuery.Record>> tenants = ResultBox<ListQueryResult<SimpleTenantQuery.Record>>.Error(new ApplicationException("loading..."));
-    private ElementReference addTenantModal;
     protected override async Task OnInitializedAsync()
     {
         tenants = await Api.GetTenants();
@@ -100,6 +137,13 @@ else
         public string TenantName { get; set; } = string.Empty;
         public string? AddError { get; set; }
     }
+    private class ChangeNameModel
+    {
+        public Guid TenantId { get; set; } = Guid.Empty;
+        public string TenantCode { get; set; } = string.Empty;
+        public string TenantName { get; set; } = string.Empty;
+        public string? ChangeError { get; set; }
+    }
     private async Task HandleAddModelSubmit()
     {
         await Task.CompletedTask;
@@ -110,7 +154,7 @@ else
             tenants = await Api.GetTenants();
             addModel.TenantCode = string.Empty;
             addModel.TenantName = string.Empty;
-            await JsRuntime.InvokeVoidAsync("closeModal");
+            await JsRuntime.InvokeVoidAsync("DisplayAddModal", "hide");
         }
         else
         {
@@ -129,5 +173,35 @@ else
                     }
                 });
 
+    private readonly ChangeNameModel changeNameModel = new();
+    private void OpenChangeNameModal(SimpleTenantQuery.Record current)
+    {
+        changeNameModel.TenantId = current.TenantId;
+        changeNameModel.TenantCode = current.TenantCode;
+        changeNameModel.TenantName = current.TenantName;
+
+        JsRuntime.InvokeVoidAsync("DisplayChangeModal", "show");
+    }
+    private async Task HandleChangeModelSubmit()
+    {
+        await Task.CompletedTask;
+        var result = await Api.ChangeTenantName(
+            new ChangeOamTenantName(
+                new OamTenantId(changeNameModel.TenantId),
+                new TenantCode(changeNameModel.TenantCode),
+                new TenantName(changeNameModel.TenantName)));
+        if (result.IsSuccess)
+        {
+            tenants = await Api.GetTenants();
+            changeNameModel.TenantId = Guid.Empty;
+            changeNameModel.TenantCode = string.Empty;
+            changeNameModel.TenantName = string.Empty;
+            await JsRuntime.InvokeVoidAsync("DisplayChangeModal", "hide");
+        }
+        else
+        {
+            changeNameModel.ChangeError = "名前の変更に失敗しました。コードの重複などにご注意ください。";
+        }
+    }
 
 }
