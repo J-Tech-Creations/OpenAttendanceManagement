@@ -8,12 +8,14 @@ public record OamTenant(
     TenantCode TenantCode,
     TenantName TenantName,
     ImmutableList<IOamTenantUserInformation> Users,
-    ImmutableList<AuthIdentityEmail> Admins) : IAggregatePayload<OamTenant>
+    ImmutableList<AuthIdentityEmail> Admins,
+    bool IsDeleted) : IDeletableAggregatePayload<OamTenant>
 {
     public static OamTenant CreateInitialPayload(OamTenant? _) =>
         new(
             TenantCode.Default,
             TenantName.Default,
             ImmutableList<IOamTenantUserInformation>.Empty,
-            ImmutableList<AuthIdentityEmail>.Empty);
+            ImmutableList<AuthIdentityEmail>.Empty,
+            false);
 }

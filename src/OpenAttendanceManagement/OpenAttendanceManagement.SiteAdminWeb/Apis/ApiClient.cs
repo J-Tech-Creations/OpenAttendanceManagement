@@ -91,4 +91,24 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
                         cancellationToken),
                     new TenantChangeNameException("ログインに失敗しました。")))
             .Remap(_ => UnitValue.Unit);
+    public Task<ResultBox<UnitValue>> DeleteTenant(
+        DeleteOamTenant command,
+        CancellationToken cancellationToken = default) =>
+        tokenService.GetTokenAsync()
+            .Do(
+                success => httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", success))
+            .Conveyor(
+                async _ => ResultBox.CheckNull(
+                    await httpClient.PostAsJsonAsync(
+                        "/api/command/oamtenant/deleteoamtenant",
+                        command,
+                        cancellationToken)))
+            .DoWrapTry(response => response.EnsureSuccessStatusCode())
+            .Conveyor(
+                async response => ResultBox.CheckNull(
+                    await response.Content.ReadFromJsonAsync<CommandExecutorResponse>(
+                        cancellationToken),
+                    new TenantDeleteException("テナントの削除に失敗しました。")))
+            .Remap(_ => UnitValue.Unit);
 }

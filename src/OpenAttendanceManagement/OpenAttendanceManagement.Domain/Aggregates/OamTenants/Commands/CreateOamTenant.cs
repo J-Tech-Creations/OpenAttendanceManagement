@@ -24,16 +24,3 @@ public record CreateOamTenant(TenantCode TenantCode, TenantName TenantName)
             _ => context.AppendEvent(
                 new OamTenantCreated(command.TenantCode, command.TenantName)));
 }
-public record ChangeOamTenantName(
-    OamTenantId OamTenantId,
-    TenantCode TenantCode,
-    TenantName TenantName)
-    : ITenantCommandWithHandlerAsync<OamTenant, ChangeOamTenantName>
-{
-    public string TenantId => TenantCode.Value;
-    public Guid GetAggregateId() => OamTenantId.Value;
-    public static Task<ResultBox<UnitValue>> HandleCommandAsync(
-        ChangeOamTenantName command,
-        ICommandContext<OamTenant> context) =>
-        context.AppendEvent(new OamTenantNameChanged(command.TenantName)).ToTask();
-}
