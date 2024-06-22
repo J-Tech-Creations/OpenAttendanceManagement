@@ -21,5 +21,12 @@
 
     protected override Task OnParametersSetAsync()
         => TokenService.GetTokenAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+            .ScanResult(
+                result =>
+                {
+                    if (result.IsSuccess == false || !TokenService.IsSiteAdmin)
+                    {
+                        NavigationManager.NavigateTo("/login");
+                    }
+                });
 }

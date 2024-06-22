@@ -20,6 +20,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.Au
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.Common", "OpenAttendanceManagement.Common\OpenAttendanceManagement.Common.csproj", "{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekiban.Web", "..\..\..\Sekiban\src\Sekiban.Web\Sekiban.Web.csproj", "{9CF4B010-4AE9-4E31-83B6-E12E377672C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekiban.Core", "..\..\..\Sekiban\src\Sekiban.Core\Sekiban.Core.csproj", "{FEB385A6-754F-4DFD-B746-975B1DF70C38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekiban.Infrastructure.Postgres", "..\..\..\Sekiban\src\Sekiban.Infrastructure.Postgres\Sekiban.Infrastructure.Postgres.csproj", "{AA97B807-8A68-4000-BA63-18A881DF4165}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +68,18 @@ Global
 		{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CF4B010-4AE9-4E31-83B6-E12E377672C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CF4B010-4AE9-4E31-83B6-E12E377672C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CF4B010-4AE9-4E31-83B6-E12E377672C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CF4B010-4AE9-4E31-83B6-E12E377672C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEB385A6-754F-4DFD-B746-975B1DF70C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEB385A6-754F-4DFD-B746-975B1DF70C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEB385A6-754F-4DFD-B746-975B1DF70C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEB385A6-754F-4DFD-B746-975B1DF70C38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA97B807-8A68-4000-BA63-18A881DF4165}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA97B807-8A68-4000-BA63-18A881DF4165}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA97B807-8A68-4000-BA63-18A881DF4165}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA97B807-8A68-4000-BA63-18A881DF4165}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

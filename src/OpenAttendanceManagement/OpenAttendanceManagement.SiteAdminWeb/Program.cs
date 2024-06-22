@@ -13,7 +13,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddOutputCache();
 
-builder.Services.AddHttpClient<WeatherApiClient>(
+builder.Services.AddHttpClient<ApiClient>(
     client =>
     {
         // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.

@@ -3,7 +3,7 @@
 @page "/weather"
 @attribute [StreamRendering]
 @attribute [OutputCache(Duration = 5)]
-@inject WeatherApiClient WeatherApi
+@inject ApiClient Api
 
 
 <PageTitle>Weather</PageTitle>
@@ -48,10 +48,17 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await WeatherApi.GetWeatherAsync();
+        forecasts = await Api.GetWeatherAsync();
     }
 
     protected override Task OnParametersSetAsync()
         => TokenService.GetTokenAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+            .ScanResult(
+                result =>
+                {
+                    if (result.IsSuccess == false || !TokenService.IsSiteAdmin)
+                    {
+                        NavigationManager.NavigateTo("/login");
+                    }
+                });
 }

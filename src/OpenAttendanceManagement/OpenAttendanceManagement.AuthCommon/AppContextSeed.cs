@@ -10,7 +10,7 @@ public static class AppContextSeed
             .Scan(_ => CreateRoleIfNotExist(OamRoles.SiteAdmin.ToString(), context))
             .Scan(_ => CreateRoleIfNotExist(OamRoles.User.ToString(), context))
             .Scan(
-                _ => CreateUserRoleFor("tomohisa@me.com", OamRoles.SiteAdmin.ToString(), context));
+                _ => CreateUserRoleFor("john@example.com", OamRoles.SiteAdmin.ToString(), context));
 
     public static ResultBox<UnitValue> CreateRoleIfNotExist(string name, AuthDbContext context)
         => ResultBox.Start

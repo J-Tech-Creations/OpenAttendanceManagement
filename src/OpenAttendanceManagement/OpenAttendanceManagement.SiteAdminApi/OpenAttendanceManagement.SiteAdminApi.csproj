@@ -13,8 +13,11 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\..\Sekiban\src\Sekiban.Infrastructure.Postgres\Sekiban.Infrastructure.Postgres.csproj"/>
+        <ProjectReference Include="..\..\..\..\Sekiban\src\Sekiban.Web\Sekiban.Web.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.AuthCommon\OpenAttendanceManagement.AuthCommon.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.Common\OpenAttendanceManagement.Common.csproj"/>
+        <ProjectReference Include="..\OpenAttendanceManagement.Domain\OpenAttendanceManagement.Domain.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.ServiceDefaults\OpenAttendanceManagement.ServiceDefaults.csproj"/>
     </ItemGroup>
 
