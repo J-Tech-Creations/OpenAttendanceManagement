@@ -8,7 +8,7 @@ using Sekiban.Core.Query.QueryModel;
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 
 public record CreateOamTenant(TenantCode TenantCode, TenantName TenantName)
-    : ITenantCommandWithHandlerAsync<OamTenant, CreateOamTenant>
+    : ICommandWithHandlerAsync<OamTenant, CreateOamTenant>
 {
     public string TenantId => TenantCode.Value;
     public Guid GetAggregateId() => Guid.NewGuid();

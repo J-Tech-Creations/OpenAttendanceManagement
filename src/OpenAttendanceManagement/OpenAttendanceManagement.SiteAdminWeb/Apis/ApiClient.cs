@@ -111,4 +111,27 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
                         cancellationToken),
                     new TenantDeleteException("テナントの削除に失敗しました。")))
             .Remap(_ => UnitValue.Unit);
+
+    // /api/command/oamtenant/oattenantaddauthidentity
+
+    public Task<ResultBox<UnitValue>> AddTenantAdmin(
+        OamTenantAddAuthIdentity command,
+        CancellationToken cancellationToken = default) =>
+        tokenService.GetTokenAsync()
+            .Do(
+                success => httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", success))
+            .Conveyor(
+                async _ => ResultBox.CheckNull(
+                    await httpClient.PostAsJsonAsync(
+                        "/api/command/oamtenant/oamtenantaddauthidentity",
+                        command,
+                        cancellationToken)))
+            .DoWrapTry(response => response.EnsureSuccessStatusCode())
+            .Conveyor(
+                async response => ResultBox.CheckNull(
+                    await response.Content.ReadFromJsonAsync<CommandExecutorResponse>(
+                        cancellationToken),
+                    new TenantAddAdminException("管理者の追加に失敗しました。")))
+            .Remap(_ => UnitValue.Unit);
 }

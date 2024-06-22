@@ -8,7 +8,7 @@ public record ChangeOamTenantName(
     OamTenantId OamTenantId,
     TenantCode TenantCode,
     TenantName TenantName)
-    : ITenantCommandWithHandlerAsync<OamTenant, ChangeOamTenantName>
+    : ICommandWithHandlerAsync<OamTenant, ChangeOamTenantName>
 {
     public string TenantId => TenantCode.Value;
     public Guid GetAggregateId() => OamTenantId.Value;

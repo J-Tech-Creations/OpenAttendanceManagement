@@ -18,11 +18,12 @@ public record SimpleTenantQuery(string NameFilter, int? PageSize, int? PageNumbe
                     m => new Record(
                         m.AggregateId,
                         m.Payload.TenantCode.Value,
-                        m.Payload.TenantName.Value)));
+                        m.Payload.TenantName.Value,
+                        string.Join(", ", m.Payload.Admins.Select(x => x.Value)))));
 
     public ResultBox<IEnumerable<Record>> HandleSort(
         IEnumerable<Record> filteredList,
         IQueryContext context) => ResultBox.FromValue(
         filteredList.OrderBy(m => m.TenantCode).ThenBy(m => m.TenantName).AsEnumerable());
-    public record Record(Guid TenantId, string TenantCode, string TenantName);
+    public record Record(Guid TenantId, string TenantCode, string TenantName, string AdminEmails);
 }
