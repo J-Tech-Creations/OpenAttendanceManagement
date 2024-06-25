@@ -1,5 +1,5 @@
 using OpenAttendanceManagement.AuthCommon;
-using OpenAttendanceManagement.Common.Exceptions;
+using OpenAttendanceManagement.Common;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries;
 using ResultBoxes;
@@ -47,7 +47,7 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.GetFromJsonAsync<ListQueryResult<SimpleTenantQuery.Record>>(
-                        "/oamtenant/simpletenantquery",
+                        "/api/query/oamtenant/simpletenantquery",
                         cancellationToken)));
 
     public Task<ResultBox<UnitValue>> AddTenant(
@@ -63,12 +63,9 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
                         "/api/command/oamtenant/createoamtenant",
                         command,
                         cancellationToken)))
-            .DoWrapTry(response => response.EnsureSuccessStatusCode())
             .Conveyor(
-                async response => ResultBox.CheckNull(
-                    await response.Content.ReadFromJsonAsync<CommandExecutorResponse>(
-                        cancellationToken),
-                    new TenantAddException("ログインに失敗しました。")))
+                response =>
+                    response.GetResultFromJsonAsync<CommandExecutorResponse>(cancellationToken))
             .Remap(_ => UnitValue.Unit);
 
     public Task<ResultBox<UnitValue>> ChangeTenantName(
@@ -84,12 +81,9 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
                         "/api/command/oamtenant/changeoamtenantname",
                         command,
                         cancellationToken)))
-            .DoWrapTry(response => response.EnsureSuccessStatusCode())
             .Conveyor(
-                async response => ResultBox.CheckNull(
-                    await response.Content.ReadFromJsonAsync<CommandExecutorResponse>(
-                        cancellationToken),
-                    new TenantChangeNameException("ログインに失敗しました。")))
+                response =>
+                    response.GetResultFromJsonAsync<CommandExecutorResponse>(cancellationToken))
             .Remap(_ => UnitValue.Unit);
     public Task<ResultBox<UnitValue>> DeleteTenant(
         DeleteOamTenant command,
@@ -104,12 +98,9 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
                         "/api/command/oamtenant/deleteoamtenant",
                         command,
                         cancellationToken)))
-            .DoWrapTry(response => response.EnsureSuccessStatusCode())
             .Conveyor(
-                async response => ResultBox.CheckNull(
-                    await response.Content.ReadFromJsonAsync<CommandExecutorResponse>(
-                        cancellationToken),
-                    new TenantDeleteException("テナントの削除に失敗しました。")))
+                response =>
+                    response.GetResultFromJsonAsync<CommandExecutorResponse>(cancellationToken))
             .Remap(_ => UnitValue.Unit);
 
     // /api/command/oamtenant/oattenantaddauthidentity
@@ -127,11 +118,26 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
                         "/api/command/oamtenant/oamtenantaddauthidentity",
                         command,
                         cancellationToken)))
-            .DoWrapTry(response => response.EnsureSuccessStatusCode())
             .Conveyor(
-                async response => ResultBox.CheckNull(
-                    await response.Content.ReadFromJsonAsync<CommandExecutorResponse>(
-                        cancellationToken),
-                    new TenantAddAdminException("管理者の追加に失敗しました。")))
+                response =>
+                    response.GetResultFromJsonAsync<CommandExecutorResponse>(cancellationToken))
+            .Remap(_ => UnitValue.Unit);
+
+    public Task<ResultBox<UnitValue>> RemoveTenantAdmin(
+        OamTenantRemoveAuthIdentity command,
+        CancellationToken cancellationToken = default) =>
+        tokenService.GetTokenAsync()
+            .Do(
+                success => httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", success))
+            .Conveyor(
+                async _ => ResultBox.CheckNull(
+                    await httpClient.PostAsJsonAsync(
+                        "/api/command/oamtenant/oamtenantremoveauthidentity",
+                        command,
+                        cancellationToken)))
+            .Conveyor(
+                response =>
+                    response.GetResultFromJsonAsync<CommandExecutorResponse>(cancellationToken))
             .Remap(_ => UnitValue.Unit);
 }

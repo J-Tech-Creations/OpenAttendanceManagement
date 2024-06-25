@@ -44,11 +44,12 @@ else
                     <td>@tenant.TenantId</td>
                     <td>@tenant.TenantCode</td>
                     <td>@tenant.TenantName</td>
-                    <td>@tenant.AdminEmails</td>
+                    <td>@string.Join(", ", tenant.AdminEmails)</td>
                     <td>
                         <button class="btn btn-primary" @onclick="() => OpenChangeNameModal(tenant)">Change Name</button>
                         <button class="btn btn-danger" @onclick="() => OpenDeleteTenantModal(tenant)">Delete</button>
-                        <button class="btn btn-danger" @onclick="() => OpenAddTenantAdminModal(tenant)">Add Tenant Admin</button>
+                        <button class="btn btn-info" @onclick="() => OpenAddTenantAdminModal(tenant)">Add Tenant Admin</button>
+                        <button class="btn btn-info" @onclick="() => OpenRemoveTenantAdminModal(tenant)">Remove Tenant Admin</button>
                     </td>
                 </tr>
             }
@@ -145,6 +146,46 @@ else
     </div>
 </div>
 
+<div class="modal fade" id="removeTenantAdminModal" tabindex="-1" role="dialog" aria-labelledby="removeTenantAdminLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeTenantAdminLabel">Remove Tenant Admin Email</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@removeTenantAdminModel" OnValidSubmit="HandleRemoveTenantAdminSubmit">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    <div class="form-group">
+                        <label for="tenantCode">テナント名</label>
+                        <InputText id="removeTenantModelName" readonly="" class="form-control" @bind-Value="removeTenantAdminModel.TenantName"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenantCode">メールアドレス</label>
+                        <!-- select box that uses removeTenantAdminModel.TenantAdminEmails and select single item -->
+                        <InputSelect id="tenantAdminEmails" class="form-control" @bind-Value="removeTenantAdminModel.EmailToRemove">
+                            <option value="">未選択</option>
+                            @foreach (var email in removeTenantAdminModel.TenantAdminEmails)
+                            {
+                                <option value="@email">@email</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    @if (!string.IsNullOrEmpty(addTenantAdminModel.Error))
+                    {
+                        <p>@addTenantAdminModel.Error</p>
+                    }
+                    <button type="submit" class="btn btn-primary">Remove Email from Tenant Admin</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="modal fade" id="addTenantModal" tabindex="-1" role="dialog" aria-labelledby="addTenantModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -191,6 +232,9 @@ else
     function DisplayAddTenantAdminModal (param) {
         $('#addTenantAdminModal').modal(param);
     }
+    function DisplayRemoveTenantAdminModal (param) {
+        $('#removeTenantAdminModal').modal(param);
+    }
 </script>
 
 @code {
@@ -199,20 +243,26 @@ else
     {
         tenants = await Api.GetTenants();
     }
+    protected override Task OnParametersSetAsync()
+        => TokenService.GetTokenAsync()
+            .ScanResult(
+                result =>
+                {
+                    if (result.IsSuccess == false || !TokenService.IsSiteAdmin)
+                    {
+                        NavigationManager.NavigateTo("/login");
+                    }
+                });
 
+
+    #region add tenant
     private class AddModel
     {
         public string TenantCode { get; set; } = string.Empty;
         public string TenantName { get; set; } = string.Empty;
         public string? AddError { get; set; }
     }
-    private class ChangeNameModel
-    {
-        public Guid TenantId { get; set; } = Guid.Empty;
-        public string TenantCode { get; set; } = string.Empty;
-        public string TenantName { get; set; } = string.Empty;
-        public string? ChangeError { get; set; }
-    }
+    private readonly AddModel addModel = new();
     private async Task HandleAddModelSubmit()
     {
         await Task.CompletedTask;
@@ -230,18 +280,16 @@ else
             addModel.AddError = "登録に失敗しました。コードの重複などにご注意ください。";
         }
     }
-    private readonly AddModel addModel = new();
-    protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAsync()
-            .ScanResult(
-                result =>
-                {
-                    if (result.IsSuccess == false || !TokenService.IsSiteAdmin)
-                    {
-                        NavigationManager.NavigateTo("/login");
-                    }
-                });
+    #endregion
 
+    #region change tenant name
+    private class ChangeNameModel
+    {
+        public Guid TenantId { get; set; } = Guid.Empty;
+        public string TenantCode { get; set; } = string.Empty;
+        public string TenantName { get; set; } = string.Empty;
+        public string? ChangeError { get; set; }
+    }
     private readonly ChangeNameModel changeNameModel = new();
     private void OpenChangeNameModal(SimpleTenantQuery.Record current)
     {
@@ -272,8 +320,9 @@ else
             changeNameModel.ChangeError = "名前の変更に失敗しました。コードの重複などにご注意ください。";
         }
     }
+    #endregion
 
-
+    #region delete tenant
     private class DeleteTenantModel
     {
         public Guid TenantId { get; set; } = Guid.Empty;
@@ -308,8 +357,10 @@ else
             deleteTenantModel.Error = "削除に失敗しました。";
         }
     }
+    #endregion
 
 
+    #region addTenantAdmin
     private class AddTenantAdminModel
     {
         public Guid TenantId { get; set; } = Guid.Empty;
@@ -347,7 +398,49 @@ else
             addTenantAdminModel.Error = "管理者の追加に失敗しました。";
         }
     }
+    #endregion
 
 
 
+    #region removeTenantAdmin
+    private class RemoveTenantAdminModel
+    {
+        public Guid TenantId { get; set; } = Guid.Empty;
+        public string TenantCode { get; set; } = string.Empty;
+        public string TenantName { get; set; } = string.Empty;
+        public string EmailToRemove { get; set; } = string.Empty;
+        public List<string> TenantAdminEmails { get; set; } = new();
+        public string? Error { get; set; }
+    }
+    private readonly RemoveTenantAdminModel removeTenantAdminModel = new();
+    private void OpenRemoveTenantAdminModal(SimpleTenantQuery.Record current)
+    {
+        removeTenantAdminModel.TenantId = current.TenantId;
+        removeTenantAdminModel.TenantCode = current.TenantCode;
+        removeTenantAdminModel.TenantName = current.TenantName;
+        removeTenantAdminModel.TenantAdminEmails = current.AdminEmails;
+        JsRuntime.InvokeVoidAsync("DisplayRemoveTenantAdminModal", "show");
+    }
+    private async Task HandleRemoveTenantAdminSubmit()
+    {
+        await Task.CompletedTask;
+        Console.WriteLine(removeTenantAdminModel.TenantId);
+        Console.WriteLine(removeTenantAdminModel.EmailToRemove);
+        var result = await Api.RemoveTenantAdmin(new OamTenantRemoveAuthIdentity(new OamTenantId(removeTenantAdminModel.TenantId), new AuthIdentityEmail(removeTenantAdminModel.EmailToRemove), new TenantCode(removeTenantAdminModel.TenantCode)));
+        if (result.IsSuccess)
+        {
+            tenants = await Api.GetTenants();
+            removeTenantAdminModel.TenantId = Guid.Empty;
+            removeTenantAdminModel.TenantCode = string.Empty;
+            removeTenantAdminModel.TenantName = string.Empty;
+            removeTenantAdminModel.EmailToRemove = string.Empty;
+            removeTenantAdminModel.TenantAdminEmails = new List<string>();
+            await JsRuntime.InvokeVoidAsync("DisplayRemoveTenantAdminModal", "hide");
+        }
+        else
+        {
+            removeTenantAdminModel.Error = "管理者の削除に失敗しました。";
+        }
+    }
+    #endregion
 }

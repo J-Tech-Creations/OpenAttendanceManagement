@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using OpenAttendanceManagement.AuthCommon;
+using OpenAttendanceManagement.Common;
 using OpenAttendanceManagement.Domain;
 using OpenAttendanceManagement.ServiceDefaults;
 using Sekiban.Core.Dependency;
@@ -58,6 +59,8 @@ builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
     definition => definition.AuthorizationDefinitions =
         new AuthorizeDefinitionCollectionWithUserManager<IdentityUser>(
             new AllowOnlyWithRolesAndDenyIfNot<AllMethod, OamRoles>(OamRoles.SiteAdmin)));
+
+builder.Services.AddTransient<IOatAuthentication, OatAuthentication>();
 
 var app = builder.Build();
 
