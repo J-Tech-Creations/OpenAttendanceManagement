@@ -1,3 +1,5 @@
+using OpenAttendanceManagement.AuthCommon;
+using OpenAttendanceManagement.Common;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Events;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 using ResultBoxes;
@@ -15,5 +17,11 @@ public record ChangeOamTenantName(
     public static Task<ResultBox<UnitValue>> HandleCommandAsync(
         ChangeOamTenantName command,
         ICommandContext<OamTenant> context) =>
-        context.AppendEvent(new OamTenantNameChanged(command.TenantName)).ToTask();
+        context.GetRequiredService<IOatAuthentication>()
+            .Conveyor(oatAuth => oatAuth.GetOatLoginUser())
+            .Verify(
+                login => login.Roles.Contains(OamRoles.SiteAdmin.ToString()) ? ExceptionOrNone.None
+                    : new ApplicationException("Not authorized"))
+            .Conveyor(
+                _ => context.AppendEvent(new OamTenantNameChanged(command.TenantName)).ToTask());
 }
