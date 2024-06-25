@@ -12,12 +12,3 @@ public record OamTenantCreated(TenantCode TenantCode, TenantName TenantName)
             TenantCode = ev.Payload.TenantCode, TenantName = ev.Payload.TenantName
         };
 }
-public record OamTenantNameChanged(TenantName TenantName)
-    : IEventPayload<OamTenant, OamTenantNameChanged>
-{
-    public static OamTenant OnEvent(OamTenant aggregatePayload, Event<OamTenantNameChanged> ev) =>
-        aggregatePayload with
-        {
-            TenantName = ev.Payload.TenantName
-        };
-}

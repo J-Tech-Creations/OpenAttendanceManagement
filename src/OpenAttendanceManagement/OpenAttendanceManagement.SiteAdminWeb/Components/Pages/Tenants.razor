@@ -4,17 +4,18 @@
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects
 @using Sekiban.Core.Query.QueryModel
 @attribute [StreamRendering]
 @attribute [OutputCache(Duration = 5)]
 @inject ApiClient Api
 @inject IJSRuntime JsRuntime
 
-<PageTitle>Weather</PageTitle>
+<PageTitle>Tenant Management</PageTitle>
 
-<h1>Weather</h1>
+<h1>Tenant</h1>
 
-<p>This component demonstrates showing data.</p>
+<p>テナント管理を行います。</p>
 
 @if (!tenants.IsSuccess)
 {
@@ -30,6 +31,7 @@ else
             <th>id</th>
             <th>Code</th>
             <th>Name</th>
+            <th>Admins</th>
             <th>Action <button class="btn btn-primary" onclick="$('#addTenantModal').modal('show')">Add Tenant</button></th>
         </tr>
         </thead>
@@ -42,9 +44,11 @@ else
                     <td>@tenant.TenantId</td>
                     <td>@tenant.TenantCode</td>
                     <td>@tenant.TenantName</td>
+                    <td>@tenant.AdminEmails</td>
                     <td>
-                        <button class="btn btn-primary" @onclick="() => OpenChangeNameModal(tenant)" DisplayChangeModal>Change Name</button>
-                        <button class="btn btn-danger">Delete</button>
+                        <button class="btn btn-primary" @onclick="() => OpenChangeNameModal(tenant)">Change Name</button>
+                        <button class="btn btn-danger" @onclick="() => OpenDeleteTenantModal(tenant)">Delete</button>
+                        <button class="btn btn-danger" @onclick="() => OpenAddTenantAdminModal(tenant)">Add Tenant Admin</button>
                     </td>
                 </tr>
             }
@@ -81,6 +85,65 @@ else
     </div>
 </div>
 
+<div class="modal fade" id="deleteTenantModal" tabindex="-1" role="dialog" aria-labelledby="deleteTenantLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTenantLabel">Delete Tenant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@deleteTenantModel" OnValidSubmit="HandleDeleteTenantSubmit">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    <div class="form-group">
+                        <label for="tenantCode">削除して良いですか？:</label>
+                        <InputText id="deleteName" class="form-control" readonly="" @bind-Value="deleteTenantModel.TenantName"/>
+                    </div>
+                    @if (!string.IsNullOrEmpty(deleteTenantModel.Error))
+                    {
+                        <p>@deleteTenantModel.Error</p>
+                    }
+                    <button type="submit" class="btn btn-primary">Delete Tenant</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addTenantAdminModal" tabindex="-1" role="dialog" aria-labelledby="addTenantAdminLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTenantAdminLabel">Add Tenant Admin Email</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@addTenantAdminModel" OnValidSubmit="HandleAddTenantAdminSubmit">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    <div class="form-group">
+                        <label for="tenantCode">テナント名</label>
+                        <InputText id="addTenantModelName" readonly="" class="form-control" @bind-Value="addTenantAdminModel.TenantName"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenantCode">メールアドレス</label>
+                        <InputText id="addTenantModelEmail" class="form-control" @bind-Value="addTenantAdminModel.TenantAdminEmail"/>
+                    </div>
+                    @if (!string.IsNullOrEmpty(addTenantAdminModel.Error))
+                    {
+                        <p>@addTenantAdminModel.Error</p>
+                    }
+                    <button type="submit" class="btn btn-primary">Add Tenant Email</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="addTenantModal" tabindex="-1" role="dialog" aria-labelledby="addTenantModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -121,6 +184,12 @@ else
     }
     function DisplayChangeModal (param) {
         $('#changeTenantNameModal').modal(param);
+    }
+    function DisplayDeleteModal (param) {
+        $('#deleteTenantModal').modal(param);
+    }
+    function DisplayAddTenantAdminModal (param) {
+        $('#addTenantAdminModal').modal(param);
     }
 </script>
 
@@ -203,5 +272,82 @@ else
             changeNameModel.ChangeError = "名前の変更に失敗しました。コードの重複などにご注意ください。";
         }
     }
+
+
+    private class DeleteTenantModel
+    {
+        public Guid TenantId { get; set; } = Guid.Empty;
+        public string TenantCode { get; set; } = string.Empty;
+        public string TenantName { get; set; } = string.Empty;
+        public string? Error { get; set; }
+    }
+    private readonly DeleteTenantModel deleteTenantModel = new();
+    private void OpenDeleteTenantModal(SimpleTenantQuery.Record current)
+    {
+        deleteTenantModel.TenantId = current.TenantId;
+        deleteTenantModel.TenantCode = current.TenantCode;
+        deleteTenantModel.TenantName = current.TenantName;
+
+        JsRuntime.InvokeVoidAsync("DisplayDeleteModal", "show");
+    }
+    private async Task HandleDeleteTenantSubmit()
+    {
+        await Task.CompletedTask;
+        Console.WriteLine(deleteTenantModel.TenantId);
+        var result = await Api.DeleteTenant(new DeleteOamTenant(new OamTenantId(deleteTenantModel.TenantId), new TenantCode(deleteTenantModel.TenantCode)));
+        if (result.IsSuccess)
+        {
+            tenants = await Api.GetTenants();
+            deleteTenantModel.TenantId = Guid.Empty;
+            deleteTenantModel.TenantCode = string.Empty;
+            deleteTenantModel.TenantName = string.Empty;
+            await JsRuntime.InvokeVoidAsync("DisplayDeleteModal", "hide");
+        }
+        else
+        {
+            deleteTenantModel.Error = "削除に失敗しました。";
+        }
+    }
+
+
+    private class AddTenantAdminModel
+    {
+        public Guid TenantId { get; set; } = Guid.Empty;
+        public string TenantCode { get; set; } = string.Empty;
+        public string TenantName { get; set; } = string.Empty;
+        public string TenantAdminEmail { get; set; } = string.Empty;
+        public string? Error { get; set; }
+    }
+    private readonly AddTenantAdminModel addTenantAdminModel = new();
+    private void OpenAddTenantAdminModal(SimpleTenantQuery.Record current)
+    {
+        addTenantAdminModel.TenantId = current.TenantId;
+        addTenantAdminModel.TenantCode = current.TenantCode;
+        addTenantAdminModel.TenantName = current.TenantName;
+
+        JsRuntime.InvokeVoidAsync("DisplayAddTenantAdminModal", "show");
+    }
+    private async Task HandleAddTenantAdminSubmit()
+    {
+        await Task.CompletedTask;
+        Console.WriteLine(addTenantAdminModel.TenantId);
+        Console.WriteLine(addTenantAdminModel.TenantAdminEmail);
+        var result = await Api.AddTenantAdmin(new OamTenantAddAuthIdentity(new OamTenantId(addTenantAdminModel.TenantId), new AuthIdentityEmail(addTenantAdminModel.TenantAdminEmail), new TenantCode(addTenantAdminModel.TenantCode)));
+        if (result.IsSuccess)
+        {
+            tenants = await Api.GetTenants();
+            addTenantAdminModel.TenantId = Guid.Empty;
+            addTenantAdminModel.TenantCode = string.Empty;
+            addTenantAdminModel.TenantName = string.Empty;
+            addTenantAdminModel.TenantAdminEmail = string.Empty;
+            await JsRuntime.InvokeVoidAsync("DisplayAddTenantAdminModal", "hide");
+        }
+        else
+        {
+            addTenantAdminModel.Error = "管理者の追加に失敗しました。";
+        }
+    }
+
+
 
 }
