@@ -47,7 +47,7 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.GetFromJsonAsync<ListQueryResult<SimpleTenantQuery.Record>>(
-                        "/simpletenantquery/simpletenantquery",
+                        "/oamtenant/simpletenantquery",
                         cancellationToken)));
 
     public Task<ResultBox<UnitValue>> AddTenant(
