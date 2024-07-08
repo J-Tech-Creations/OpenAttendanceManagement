@@ -3,13 +3,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using OpenAttendanceManagement.ApiService;
 using OpenAttendanceManagement.AuthCommon;
+using OpenAttendanceManagement.Common;
+using OpenAttendanceManagement.Domain;
 using OpenAttendanceManagement.ServiceDefaults;
+using Sekiban.Core.Dependency;
+using Sekiban.Infrastructure.Postgres;
+using Sekiban.Web.Authorizations;
+using Sekiban.Web.Authorizations.Definitions;
+using Sekiban.Web.Dependency;
 using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
 
+builder.Services.AddControllers();
 // Add services to the container.
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
@@ -38,29 +46,22 @@ builder.Services.AddSwaggerGen(
                 }
             });
     });
-// builder.Services.AddAuthentication(options =>
-//     {
-//         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//     })
-//     .AddJwtBearer(options =>
-//     {
-//         options.TokenValidationParameters = new TokenValidationParameters
-//         {
-//             ValidateIssuer = true,
-//             ValidateAudience = true,
-//             ValidateLifetime = true,
-//             ValidateIssuerSigningKey = true,
-//             ValidIssuer = builder.Configuration["Jwt:Issuer"],
-//             ValidAudience = builder.Configuration["Jwt:Audience"],
-//             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-//         };
-//     });
-// builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
+builder.Services.AddAuthentication();
 builder.AddNpgsqlDbContext<AuthDbContext>("authdb");
+builder.Services.AddScoped<UserManager<IdentityUser>>();
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AuthDbContext>();
+
+builder.AddSekibanWithDependency<OamDomainDependency>();
+builder.AddSekibanPostgresDbWithAzureBlobStorage();
+builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
+    definition => definition.AuthorizationDefinitions =
+        new AuthorizeDefinitionCollectionWithUserManager<IdentityUser>(
+            new AllowOnlyWithRolesAndDenyIfNot<AllMethod, OamRoles>(OamRoles.SiteAdmin)));
+
+builder.Services.AddTransient<IOatAuthentication, OatAuthentication>();
 
 var app = builder.Build();
 
@@ -71,6 +72,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
@@ -135,6 +137,7 @@ app.MapGet(
     .WithName("GetUserRoles")
     .WithOpenApi()
     .RequireAuthorization();
+app.MapControllers();
 
 app.MapIdentityApi<IdentityUser>();
 app.MapDefaultEndpoints();
