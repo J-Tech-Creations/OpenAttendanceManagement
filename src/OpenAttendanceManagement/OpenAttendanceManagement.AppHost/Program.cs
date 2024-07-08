@@ -16,7 +16,8 @@ var blob = azureStorage.AddBlobs("sekibanBlob");
 
 var apiService = builder.AddProject<OpenAttendanceManagement_ApiService>("apiservice")
     .WithReference(authDb)
-    .WithReference(eventDb);
+    .WithReference(eventDb)
+    .WithReference(blob);
 
 
 builder.AddProject<OpenAttendanceManagement_Web>("webfrontend")

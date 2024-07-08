@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\OpenAttendanceManagement.AuthCommon\OpenAttendanceManagement.AuthCommon.csproj"/>
+        <ProjectReference Include="..\OpenAttendanceManagement.Domain\OpenAttendanceManagement.Domain.csproj" />
         <ProjectReference Include="..\OpenAttendanceManagement.ServiceDefaults\OpenAttendanceManagement.ServiceDefaults.csproj"/>
     </ItemGroup>
 
@@ -20,6 +21,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="ResultBoxes" Version="0.3.16" />
+        <PackageReference Include="Sekiban.Infrastructure.Postgres" Version="0.20.2" />
+        <PackageReference Include="Sekiban.Web" Version="0.20.2" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.6.2"/>
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.6.2"/>
     </ItemGroup>
