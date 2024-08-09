@@ -14,13 +14,12 @@ public record CreateOamTenant(TenantCode TenantCode, TenantName TenantName)
     public Guid GetAggregateId() => Guid.NewGuid();
     public static Task<ResultBox<UnitValue>> HandleCommandAsync(
         CreateOamTenant command,
-        ICommandContext<OamTenant> context) => context.GetRequiredService<IQueryExecutor>()
-        .Conveyor(
-            executor => executor.ExecuteAsync(new TenantCodeExistsQuery(command.TenantCode)))
-        .Verify(
-            result => result ? new TenantCodeDuplicateException(command.TenantCode.Value)
-                : ExceptionOrNone.None)
-        .Conveyor(
-            _ => context.AppendEvent(
-                new OamTenantCreated(command.TenantCode, command.TenantName)));
+        ICommandContext<OamTenant> context) =>
+        context.ExecuteQueryAsync(new TenantCodeExistsQuery(command.TenantCode))
+            .Verify(
+                result => result ? new TenantCodeDuplicateException(command.TenantCode.Value)
+                    : ExceptionOrNone.None)
+            .Conveyor(
+                _ => context.AppendEvent(
+                    new OamTenantCreated(command.TenantCode, command.TenantName)));
 }
