@@ -54,6 +54,7 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<AuthDbContext>();
 
 builder.AddSekibanWithDependency<OamDomainDependency>();
+    builder.AddSekibanPostgresDbWithAzureBlobStorage();
 builder.AddSekibanPostgresDbWithAzureBlobStorage();
 builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
     definition => definition.AuthorizationDefinitions =
