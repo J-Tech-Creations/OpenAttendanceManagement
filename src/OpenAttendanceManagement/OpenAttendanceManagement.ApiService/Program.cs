@@ -69,7 +69,7 @@ builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
 builder.Services.AddSwaggerGen(options => options.ConfigureForSekibanWeb());
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<OamUserManager>();
+builder.Services.AddTransient<IOamUserManager, OamUserManager>();
 
 builder.Services.AddTransient<IOatAuthentication, OatAuthentication>();
 
@@ -143,8 +143,8 @@ app.MapGet(
     .RequireAuthorization();
 app.MapControllers();
 
-app.MapGet("/user/tenants", (ISekibanExecutor sekibanExecutor, OamUserManager oamUserManager) =>
-        oamUserManager.GetUserEmail().Remap(AuthIdentityEmail.FromString)
+app.MapGet("/user/tenants", (ISekibanExecutor sekibanExecutor, IOamUserManager oamUserManager) =>
+        oamUserManager.GetExecutingUserEmail().Remap(AuthIdentityEmail.FromString)
             .Conveyor(email => sekibanExecutor.ExecuteQuery(new BelongingTenantQuery(email)))
             .ToResults()
     ).WithName("GetUserTenants").WithOpenApi()

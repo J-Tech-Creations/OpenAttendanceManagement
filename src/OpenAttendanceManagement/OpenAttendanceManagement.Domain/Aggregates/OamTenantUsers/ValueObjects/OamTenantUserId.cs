@@ -1,6 +1,6 @@
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
 
-public record OamTenantUserId(string Value)
+public record OamTenantUserId(Guid Value)
 {
-    public static OamTenantUserId Default => new(string.Empty);
+    public static OamTenantUserId Default => new(Guid.Empty);
 }
