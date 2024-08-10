@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -10,7 +11,8 @@ using Sekiban.Infrastructure.Postgres;
 using Sekiban.Web.Authorizations;
 using Sekiban.Web.Authorizations.Definitions;
 using Sekiban.Web.Dependency;
-using System.Security.Claims;
+using Sekiban.Web.OpenApi.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -54,12 +56,13 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<AuthDbContext>();
 
 builder.AddSekibanWithDependency<OamDomainDependency>();
-    builder.AddSekibanPostgresDbWithAzureBlobStorage();
+builder.AddSekibanPostgresDbWithAzureBlobStorage();
 builder.AddSekibanPostgresDbWithAzureBlobStorage();
 builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
     definition => definition.AuthorizationDefinitions =
         new AuthorizeDefinitionCollectionWithUserManager<IdentityUser>(
             new AllowOnlyWithRolesAndDenyIfNot<AllMethod, OamRoles>(OamRoles.SiteAdmin)));
+builder.Services.AddSwaggerGen(options => options.ConfigureForSekibanWeb());
 
 builder.Services.AddTransient<IOatAuthentication, OatAuthentication>();
 
@@ -84,16 +87,10 @@ app.MapGet(
         {
             var userIdClaim =
                 httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return Results.NotFound("User not found.");
-            }
+            if (userIdClaim == null) return Results.NotFound("User not found.");
 
             var user = await userManager.FindByIdAsync(userIdClaim.Value);
-            if (user == null)
-            {
-                return Results.NotFound($"User with ID {userIdClaim.Value} not found.");
-            }
+            if (user == null) return Results.NotFound($"User with ID {userIdClaim.Value} not found.");
             var roles = authDbContext.UserRoles.Where(m => m.UserId == user.Id)
                 .Select(m => m.RoleId)
                 .Join(
