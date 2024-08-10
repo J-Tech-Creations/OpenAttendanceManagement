@@ -1,6 +1,7 @@
 using ResultBoxes;
 using Sekiban.Core.Aggregate;
 using Sekiban.Core.Query.QueryModel;
+
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries;
 
 public record SimpleTenantQuery(string NameFilter, int? PageSize, int? PageNumber)
@@ -12,8 +13,8 @@ public record SimpleTenantQuery(string NameFilter, int? PageSize, int? PageNumbe
         ResultBox.FromValue(
             list.Where(
                     m => string.IsNullOrWhiteSpace(NameFilter) ||
-                        m.Payload.TenantName.Value.Contains(NameFilter) ||
-                        m.Payload.TenantCode.Value.Contains(NameFilter))
+                         m.Payload.TenantName.Value.Contains(NameFilter) ||
+                         m.Payload.TenantCode.Value.Contains(NameFilter))
                 .Select(
                     m => new Record(
                         m.AggregateId,
@@ -25,6 +26,7 @@ public record SimpleTenantQuery(string NameFilter, int? PageSize, int? PageNumbe
         IEnumerable<Record> filteredList,
         IQueryContext context) => ResultBox.FromValue(
         filteredList.OrderBy(m => m.TenantCode).ThenBy(m => m.TenantName).AsEnumerable());
+
     public record Record(
         Guid TenantId,
         string TenantCode,

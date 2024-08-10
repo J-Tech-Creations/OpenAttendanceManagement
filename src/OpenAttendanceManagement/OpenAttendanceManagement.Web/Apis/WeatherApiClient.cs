@@ -1,6 +1,7 @@
+using System.Net.Http.Headers;
 using OpenAttendanceManagement.AuthCommon;
 using ResultBoxes;
-using System.Net.Http.Headers;
+
 namespace OpenAttendanceManagement.Web.Apis;
 
 public class WeatherApiClient(HttpClient httpClient, TokenService tokenService)
@@ -17,13 +18,10 @@ public class WeatherApiClient(HttpClient httpClient, TokenService tokenService)
                     new AuthenticationHeaderValue("Bearer", success));
 
         await foreach (var forecast in httpClient.GetFromJsonAsAsyncEnumerable<WeatherForecast>(
-            "/weatherforecast",
-            cancellationToken))
+                           "/weatherforecast",
+                           cancellationToken))
         {
-            if (forecasts?.Count >= maxItems)
-            {
-                break;
-            }
+            if (forecasts?.Count >= maxItems) break;
             if (forecast is not null)
             {
                 forecasts ??= [];

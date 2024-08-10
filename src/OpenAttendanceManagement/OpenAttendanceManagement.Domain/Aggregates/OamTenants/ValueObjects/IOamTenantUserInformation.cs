@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
+
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 
 [JsonDerivedType(
@@ -13,4 +15,8 @@ namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 [JsonDerivedType(
     typeof(OamInactiveTenantUserInformation),
     nameof(OamInactiveTenantUserInformation))]
-public interface IOamTenantUserInformation;
+public interface IOamTenantUserInformation
+{
+    AuthIdentityId AuthIdentityId { get; }
+    AuthIdentityEmail AuthIdentityEmail { get; }
+}

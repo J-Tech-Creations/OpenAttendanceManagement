@@ -2,6 +2,7 @@ using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.ServiceDefaults;
 using OpenAttendanceManagement.Web.Apis;
 using OpenAttendanceManagement.Web.Components;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
@@ -35,6 +36,13 @@ builder.Services.AddHttpClient<TokenService>(
         // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
         client.BaseAddress = new Uri("https+http://apiservice");
     });
+builder.Services.AddHttpClient<TenantApiClient>(
+    client =>
+    {
+        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
+        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
+        client.BaseAddress = new Uri("https+http://apiservice");
+    });
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(
@@ -44,6 +52,7 @@ builder.Services.AddSession(
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
     });
+builder.Services.AddSingleton(TenantInformation.Empty);
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -5,13 +6,18 @@ using OpenAttendanceManagement.ApiService;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.Common;
 using OpenAttendanceManagement.Domain;
+using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries;
+using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
 using OpenAttendanceManagement.ServiceDefaults;
+using ResultBoxes;
+using Sekiban.Core;
 using Sekiban.Core.Dependency;
 using Sekiban.Infrastructure.Postgres;
 using Sekiban.Web.Authorizations;
 using Sekiban.Web.Authorizations.Definitions;
 using Sekiban.Web.Dependency;
-using System.Security.Claims;
+using Sekiban.Web.OpenApi.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
@@ -60,6 +66,10 @@ builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
     definition => definition.AuthorizationDefinitions =
         new AuthorizeDefinitionCollectionWithUserManager<IdentityUser>(
             new AllowOnlyWithRolesAndDenyIfNot<AllMethod, OamRoles>(OamRoles.SiteAdmin)));
+builder.Services.AddSwaggerGen(options => options.ConfigureForSekibanWeb());
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<OamUserManager>();
 
 builder.Services.AddTransient<IOatAuthentication, OatAuthentication>();
 
@@ -112,16 +122,10 @@ app.MapGet(
         {
             var userIdClaim =
                 httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return Results.NotFound("User not found.");
-            }
+            if (userIdClaim == null) return Results.NotFound("User not found.");
 
             var user = await userManager.FindByIdAsync(userIdClaim.Value);
-            if (user == null)
-            {
-                return Results.NotFound($"User with ID {userIdClaim.Value} not found.");
-            }
+            if (user == null) return Results.NotFound($"User with ID {userIdClaim.Value} not found.");
 
             var roles = authDbContext.UserRoles.Where(m => m.UserId == user.Id)
                 .Select(m => m.RoleId)
@@ -139,6 +143,12 @@ app.MapGet(
     .RequireAuthorization();
 app.MapControllers();
 
+app.MapGet("/user/tenants", (ISekibanExecutor sekibanExecutor, OamUserManager oamUserManager) =>
+        oamUserManager.GetUserEmail().Remap(AuthIdentityEmail.FromString)
+            .Conveyor(email => sekibanExecutor.ExecuteQuery(new BelongingTenantQuery(email)))
+            .ToResults()
+    ).WithName("GetUserTenants").WithOpenApi()
+    .RequireAuthorization();
 app.MapIdentityApi<IdentityUser>();
 app.MapDefaultEndpoints();
 

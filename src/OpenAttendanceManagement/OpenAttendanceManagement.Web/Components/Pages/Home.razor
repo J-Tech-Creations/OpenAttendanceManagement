@@ -1,6 +1,10 @@
 ﻿@page "/"
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries
+@using OpenAttendanceManagement.Web.Apis
 @inject TokenService TokenService
 @inject NavigationManager NavigationManager
+@inject TenantApiClient TenantApiClient;
+@inject TenantInformation TenantInformation;
 @rendermode @(new InteractiveServerRenderMode(false))
 
 <PageTitle>Home</PageTitle>
@@ -9,9 +13,45 @@
 
 Welcome to your new app.
 
+<table class="table">
+    <thead>
+    <tr>
+        <th>Tenant Code</th>
+        <th>Tenant Name</th>
+        <th>IsActive</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var tenant in TenantInformation.Tenants)
+    {
+        <tr>
+            <td>@tenant.TenantCode</td>
+            <td>@tenant.TenantName</td>
+            <td>
+                @if (tenant.TenantId == TenantInformation.Tenant.Value?.TenantId)
+                {
+                    <span>Current</span>
+                }
+                else
+                {
+                    <button class="btn btn-info" @onclick="() => ChangeTenant(tenant)">Change to Current</button>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
 
 @code {
+
     protected override Task OnParametersSetAsync()
         => TokenService.GetTokenAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login")).Conveyor(() => TenantApiClient.GetMyTenants());
+
+    private void ChangeTenant(BelongingTenantQuery.Record toChange)
+    {
+        TenantInformation.ChangeTenant(toChange.TenantId);
+    }
+
 }
