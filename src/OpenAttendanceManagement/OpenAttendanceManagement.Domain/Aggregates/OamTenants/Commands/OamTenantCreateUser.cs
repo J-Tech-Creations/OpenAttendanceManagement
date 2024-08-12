@@ -29,9 +29,11 @@ public record OamTenantCreateUser(
             .Conveyor(() =>
                 context.GetRequiredService<IOamUserManager>()
                     .Conveyor(manager => manager.GetUserIdFromEmail(command.Email.Value))
-                    .Remap(AuthIdentityId.FromString))
-            .Conveyor(authIdentityId => context.AppendEvent(
-                new OamTenantUserAddedToTenant(command.Email, authIdentityId, command.UserId, command.OamTenantId,
-                    command.UserName,
-                    command.DisplayName)));
+                    .Remap(AuthIdentityId.FromOptionalString)
+                    .Conveyor(authIdentityId =>
+                        context.AppendEvent(
+                            new OamTenantUserAddedToTenant(command.Email, authIdentityId, command.UserId,
+                                command.OamTenantId,
+                                command.UserName,
+                                command.DisplayName))));
 }

@@ -1,12 +1,13 @@
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
+using ResultBoxes;
 using Sekiban.Core.Events;
 
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Events;
 
 public record OamTenantUserAddedToTenant(
     AuthIdentityEmail Email,
-    AuthIdentityId AuthIdentityId,
+    OptionalValue<AuthIdentityId> AuthIdentityId,
     OamTenantUserId UserId,
     OamTenantId TenantId,
     OamUserName UserName,

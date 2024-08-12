@@ -20,6 +20,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.Au
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.Common", "OpenAttendanceManagement.Common\OpenAttendanceManagement.Common.csproj", "{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekiban.Core", "..\..\..\Sekiban\src\Sekiban.Core\Sekiban.Core.csproj", "{61F89FA1-27BE-4B3E-BF3C-8D381C295F03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekiban.Web", "..\..\..\Sekiban\src\Sekiban.Web\Sekiban.Web.csproj", "{CEF59D21-961A-4A5D-A233-540C4E0F9C42}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +66,14 @@ Global
 		{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9BD66D3-79DB-4FFD-A6DE-4F1DC2324F36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61F89FA1-27BE-4B3E-BF3C-8D381C295F03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61F89FA1-27BE-4B3E-BF3C-8D381C295F03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61F89FA1-27BE-4B3E-BF3C-8D381C295F03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61F89FA1-27BE-4B3E-BF3C-8D381C295F03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEF59D21-961A-4A5D-A233-540C4E0F9C42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEF59D21-961A-4A5D-A233-540C4E0F9C42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEF59D21-961A-4A5D-A233-540C4E0F9C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEF59D21-961A-4A5D-A233-540C4E0F9C42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

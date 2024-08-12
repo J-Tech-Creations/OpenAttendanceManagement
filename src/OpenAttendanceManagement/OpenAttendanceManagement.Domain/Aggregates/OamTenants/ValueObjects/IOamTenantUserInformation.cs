@@ -17,6 +17,5 @@ namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
     nameof(OamInactiveTenantUserInformation))]
 public interface IOamTenantUserInformation
 {
-    AuthIdentityId AuthIdentityId { get; }
     AuthIdentityEmail AuthIdentityEmail { get; }
 }

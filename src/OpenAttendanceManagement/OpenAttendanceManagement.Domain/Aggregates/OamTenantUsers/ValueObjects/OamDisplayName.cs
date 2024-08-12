@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
 
 public record OamDisplayName(
@@ -6,4 +7,5 @@ public record OamDisplayName(
     string Value)
 {
     public static OamDisplayName Default => new(string.Empty);
+    public static OamDisplayName FromString(string value) => new(value);
 }

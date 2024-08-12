@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="ResultBoxes" Version="0.3.21"/>
+        <PackageReference Include="ResultBoxes" Version="0.3.22"/>
     </ItemGroup>
 
 </Project>
