@@ -21,9 +21,16 @@ public record CreateOamTenantUserByEvent(Event<OamTenantUserAddedToTenant> Tenan
     public string TenantId => TenantEvent.RootPartitionKey;
 }
 
+/// <summary>
+/// </summary>
+/// <param name="TenantId"></param>
+/// <param name="AuthIdentityId">When OptionalValue.Empty, user have not created yet.</param>
+/// <param name="Email"></param>
+/// <param name="UserName"></param>
+/// <param name="DisplayName"></param>
 public record OamTenantUserCreatedByEvent(
     OamTenantId TenantId,
-    AuthIdentityId AuthIdentityId,
+    OptionalValue<AuthIdentityId> AuthIdentityId,
     AuthIdentityEmail Email,
     OamUserName UserName,
     OamDisplayName DisplayName) : IEventPayload<OamTenantUser, OamTenantUserCreatedByEvent>

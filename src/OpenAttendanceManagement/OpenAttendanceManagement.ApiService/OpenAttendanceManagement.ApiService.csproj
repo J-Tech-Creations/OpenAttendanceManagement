@@ -8,23 +8,23 @@
 
     <ItemGroup>
         <ProjectReference Include="..\OpenAttendanceManagement.AuthCommon\OpenAttendanceManagement.AuthCommon.csproj"/>
-        <ProjectReference Include="..\OpenAttendanceManagement.Domain\OpenAttendanceManagement.Domain.csproj" />
+        <ProjectReference Include="..\OpenAttendanceManagement.Domain\OpenAttendanceManagement.Domain.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.ServiceDefaults\OpenAttendanceManagement.ServiceDefaults.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.7" />
+        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.1.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.7"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="ResultBoxes" Version="0.3.21" />
-        <PackageReference Include="Sekiban.Infrastructure.Postgres" Version="0.20.6" />
-        <PackageReference Include="Sekiban.Web" Version="0.20.6" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.7.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.7.0" />
+        <PackageReference Include="ResultBoxes" Version="0.3.22"/>
+        <PackageReference Include="Sekiban.Infrastructure.Postgres" Version="0.20.6"/>
+        <PackageReference Include="Sekiban.Web" Version="0.20.6"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.7.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.7.0"/>
     </ItemGroup>
 
 </Project>

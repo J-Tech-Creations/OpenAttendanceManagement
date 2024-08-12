@@ -8,5 +8,5 @@ public interface IOamUserManager
     Task<ResultBox<IdentityUser>> GetExecutingUser();
     Task<ResultBox<string>> GetExecutingUserEmail();
 
-    Task<ResultBox<string>> GetUserIdFromEmail(string email);
+    Task<ResultBox<OptionalValue<string>>> GetUserIdFromEmail(string email);
 }

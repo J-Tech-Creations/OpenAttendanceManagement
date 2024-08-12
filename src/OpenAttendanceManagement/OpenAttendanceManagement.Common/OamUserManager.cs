@@ -16,7 +16,7 @@ public class OamUserManager(
     public Task<ResultBox<string>> GetExecutingUserEmail() =>
         GetExecutingUser().Conveyor(user => ResultBox.CheckNull(user.Email));
 
-    public Task<ResultBox<string>> GetUserIdFromEmail(string email) => ResultBox
-        .CheckNull(userManager.FindByEmailAsync(email))
-        .Remap(user => user.Id);
+    public async Task<ResultBox<OptionalValue<string>>> GetUserIdFromEmail(string email) => ResultBox
+        .FromValue(OptionalValue.FromNullableValue(await userManager.FindByEmailAsync(email)))
+        .Remap(user => user.HasValue ? user.GetValue().Id : OptionalValue<string>.Null);
 }

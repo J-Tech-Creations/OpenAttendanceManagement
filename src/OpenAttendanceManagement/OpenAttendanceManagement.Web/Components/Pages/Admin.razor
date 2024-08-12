@@ -1,0 +1,161 @@
+﻿@page "/admin"
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects
+@using OpenAttendanceManagement.Web.Apis
+@attribute [StreamRendering]
+@attribute [OutputCache(Duration = 5)]
+
+@inject WeatherApiClient WeatherApi
+@inject TenantApiClient TenantApi
+@inject TokenService TokenService
+@inject NavigationManager NavigationManager
+@inject TenantInformation TenantInformation
+@inject IJSRuntime JsRuntime
+@rendermode @(new InteractiveServerRenderMode(false))
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data loaded from a backend API service.</p>
+
+@if (forecasts == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Temp. (C)</th>
+            <th>Temp. (F)</th>
+            <th>Summary</th>
+            <th>
+                <button class="btn btn-info" @onclick="() => OpenCreateUserModal()">Add User</button>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var forecast in forecasts)
+        {
+            <tr>
+                <td>@forecast.Date.ToShortDateString()</td>
+                <td>@forecast.TemperatureC</td>
+                <td>@forecast.TemperatureF</td>
+                <td>@forecast.Summary</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+<div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserNameLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserNameLabel">Change Tenant Name</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@createUserModel" OnValidSubmit="HandleCreateModelSubmit">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    <div class="form-group">
+                        <label for="UserEmail">User Email</label>
+                        <InputText id="UserEmail" class="form-control" @bind-Value="createUserModel.UserEmail"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="FirstName">First Name</label>
+                        <InputText id="FirstName" class="form-control" @bind-Value="createUserModel.FirstName"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="LastName">Last Name</label>
+                        <InputText id="LastName" class="form-control" @bind-Value="createUserModel.LastName"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="DisplayName">Display Name</label>
+                        <InputText id="DisplayName" class="form-control" @bind-Value="createUserModel.DisplayName"/>
+                    </div>
+                    @if (!string.IsNullOrEmpty(createUserModel.AddError))
+                    {
+                        <p>@createUserModel.AddError</p>
+                    }
+                    <button type="submit" class="btn btn-primary">Change Tenant Name</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function DisplayCreateUserModal (param) {
+        $('#createUserModal').modal(param);
+    }
+</script>
+
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecasts = await WeatherApi.GetWeatherAsync();
+    }
+
+    protected override Task OnParametersSetAsync()
+        => TokenService.GetTokenAsync()
+            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+
+    #region add tenant user
+
+    private class TenantUserCreateModel
+    {
+        public string UserEmail { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public string? AddError { get; set; }
+    }
+
+    private TenantUserCreateModel createUserModel = new();
+
+    private void OpenCreateUserModal()
+    {
+        createUserModel = new TenantUserCreateModel();
+        JsRuntime.InvokeVoidAsync("DisplayCreateUserModal", "show");
+    }
+
+    private async Task HandleCreateModelSubmit()
+    {
+        await Task.CompletedTask;
+        Console.WriteLine(createUserModel.UserEmail);
+        var result = await TenantApi.AddUserToTenant(new OamTenantCreateUser(
+            new OamTenantId(TenantInformation.Tenant.GetValue().TenantId),
+            AuthIdentityEmail.FromString(createUserModel.UserEmail),
+            new TenantCode(TenantInformation.Tenant.GetValue().TenantCode),
+            new OamTenantUserId(Guid.NewGuid()),
+            new OamUserName(createUserModel.FirstName, createUserModel.LastName),
+            OamDisplayName.FromString(createUserModel.DisplayName))
+        );
+        if (result.IsSuccess)
+        {
+            // tenants = await Api.GetTenants();
+            // addModel.TenantCode = string.Empty;
+            // addModel.TenantName = string.Empty;
+            await JsRuntime.InvokeVoidAsync("DisplayAddModal", "hide");
+        }
+        else
+        {
+            createUserModel.AddError = "登録に失敗しました。コードの重複などにご注意ください。";
+        }
+    }
+
+    #endregion
+
+}

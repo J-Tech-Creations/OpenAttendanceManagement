@@ -1,13 +1,15 @@
 using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
+using ResultBoxes;
+
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 
 public record OamUnconfirmedTenantUserInformation(
     OamTenantUserId TenantUserId,
-    AuthIdentityId AuthIdentityId,
+    OptionalValue<AuthIdentityId> AuthIdentityId,
     AuthIdentityEmail AuthIdentityEmail) : IOamTenantUserInformation
 {
     public static OamUnconfirmedTenantUserInformation Default => new(
         OamTenantUserId.Default,
-        AuthIdentityId.Default,
+        OptionalValue<AuthIdentityId>.Empty,
         AuthIdentityEmail.Default);
 }

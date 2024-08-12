@@ -1,8 +1,9 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using OpenAttendanceManagement.Common.Exceptions;
 using ResultBoxes;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
+
 namespace OpenAttendanceManagement.AuthCommon;
 
 public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpClient httpClient)
@@ -30,14 +31,16 @@ public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpC
                     await protectedSessionStorage.SetAsync(TokenKey, token);
                     return UnitValue.Unit;
                 })
-            .Do(_ => SavedToken = OptionalValue<string>.FromValue(token));
+            .Do(_ => SavedToken = OptionalValue.FromValue(token));
+
     public Task<ResultBox<string>> GetTokenAsync() =>
         SavedToken.HasValue
             ? ResultBox.FromValue(SavedToken.GetValue()).ToTask()
             : ResultBox.WrapTry(
                     async () => await protectedSessionStorage.GetAsync<string>(TokenKey))
                 .Conveyor(
-                    result => result.Success ?　ResultBox.CheckNull(
+                    result => result.Success
+                        ?　ResultBox.CheckNull(
                             result.Value,
                             new TokenGetException("トークンが見つかりませんでした。(Null)"))
                         : ResultBox<string>.Error(new TokenGetException("トークンが見つかりませんでした。")))
@@ -52,14 +55,12 @@ public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpC
                                     "/user/roles")))
                         .ScanResult(result => Console.WriteLine(result))
                         .Conveyor(
-                            result => result.HasValue ? ResultBox.FromValue(result.GetValue())
+                            result => result.HasValue
+                                ? ResultBox.FromValue(result.GetValue())
                                 : ResultBox<List<string>>.Error(
                                     new TokenGetException("ロールが見つかりませんでした。")))
                         .Do(
-                            list =>
-                            {
-                                Roles = list;
-                            }));
+                            list => { Roles = list; }));
 
     public ResultBox<UnitValue> RemoveTokenAsync()
         => ResultBox.WrapTry(async () => await protectedSessionStorage.DeleteAsync(TokenKey))
