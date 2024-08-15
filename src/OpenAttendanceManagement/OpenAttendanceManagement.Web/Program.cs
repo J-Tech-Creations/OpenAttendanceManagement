@@ -43,6 +43,13 @@ builder.Services.AddHttpClient<TenantApiClient>(
         // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
         client.BaseAddress = new Uri("https+http://apiservice");
     });
+builder.Services.AddHttpClient<UserApiClient>(
+    client =>
+    {
+        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
+        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
+        client.BaseAddress = new Uri("https+http://apiservice");
+    });
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(
