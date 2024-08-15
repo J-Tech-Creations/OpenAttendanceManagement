@@ -3,33 +3,50 @@
 @inject TokenService TokenService
 @inject NavigationManager NavigationManager
 
-@rendermode @(new InteractiveServerRenderMode(false))
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Login</h3>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@loginForm" OnValidSubmit="HandleLogin" FormName="Login">
+                        <DataAnnotationsValidator/>
+                        <ValidationSummary class="text-danger"/>
 
-<h3>Login</h3>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <InputText id="email" class="form-control" @bind-Value="loginForm.Email"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <InputText id="password" class="form-control" @bind-Value="loginForm.Password" type="password"/>
+                        </div>
+                        <div class="form-group form-check">
+                            <InputCheckbox id="rememberMe" class="form-check-input" @bind-Value="loginForm.RememberMe"/>
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </EditForm>
 
-<EditForm Model="@loginForm" OnValidSubmit="HandleLogin" FormName="Login">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
-
-    <div>
-        <label>Email:</label>
-        <InputText @bind-Value="loginForm.Email"/>
+                    @if (loggedIn)
+                    {
+                        <div class="alert alert-success mt-3">
+                            Login successful! Token: @TokenService.SavedToken.Value
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger mt-3">
+                            @errorMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
-    <div>
-        <label>Password:</label>
-        <InputText @bind-Value="loginForm.Password" type="password"/>
-    </div>
-    <div>
-        <InputCheckbox @bind-Value="loginForm.RememberMe"/>
-        <label>Remember me</label>
-    </div>
-    <button type="submit">Login</button>
-</EditForm>
-
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p>@errorMessage</p>
-}
+</div>
 
 @code {
     private readonly LoginForm loginForm = new();
@@ -42,6 +59,7 @@
         public string? Password { get; set; } = string.Empty;
         public bool RememberMe { get; set; }
     }
+
     private async Task HandleLogin()
     {
         errorMessage = await LoginClient.LoginAsync(
@@ -54,12 +72,14 @@
         {
             errorMessage = "管理者アカウントでないとログインできません。";
         }
+
         // if login was successful, redirect to /
         if (TokenService.SavedToken.HasValue && TokenService.IsSiteAdmin)
         {
             NavigationManager.NavigateTo("/");
         }
     }
+
     protected override Task OnParametersSetAsync()
         => TokenService.GetTokenAsync()
             .ScanResult(
@@ -70,4 +90,5 @@
                         NavigationManager.NavigateTo("/login");
                     }
                 });
+
 }

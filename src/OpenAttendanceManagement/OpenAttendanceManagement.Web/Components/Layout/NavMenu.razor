@@ -1,5 +1,5 @@
 ﻿@inject TokenService TokenService
-@rendermode @(new InteractiveServerRenderMode(false))
+@inject NavigationManager NavigationManager
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -14,7 +14,6 @@
         <div class="nav-item px-3">
             @if (TokenService.HasToken)
             {
-
                 <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                     <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
                 </NavLink>
@@ -54,17 +53,35 @@
                 </NavLink>
             }
         </div>
+        <div class="nav-item px-3">
+            @if (TokenService.HasToken)
+            {
+                <div @onclick="LogOut">
+                    <NavLink class="nav-link">
+                        <span class="bi bi-list-nested" aria-hidden="true"></span> Log Out
+                    </NavLink>
+                </div>
+            }
+        </div>
     </nav>
 </div>
 
 @code {
     private bool IsLoggedIn = false;
     protected override Task OnParametersSetAsync() => TokenService.GetTokenAsync().ScanResult(result => IsLoggedIn = result.IsSuccess);
+
     public Task StateHasChangedAsync() => TokenService.GetTokenAsync()
         .ScanResult(result => IsLoggedIn = result.IsSuccess)
         .DoResult(
-            _ =>
-            {
-                StateHasChanged();
-            });
+            _ => { StateHasChanged(); });
+
+    private async Task LogOut()
+    {
+        var result = await TokenService.LogOutAsync();
+        if (result.IsSuccess)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+
 }
