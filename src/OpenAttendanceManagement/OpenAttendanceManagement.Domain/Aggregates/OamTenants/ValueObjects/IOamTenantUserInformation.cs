@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
+using ResultBoxes;
 
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 
@@ -18,4 +19,5 @@ namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 public interface IOamTenantUserInformation
 {
     AuthIdentityEmail AuthIdentityEmail { get; }
+    OptionalValue<OamTenantUserId> GetUserId();
 }

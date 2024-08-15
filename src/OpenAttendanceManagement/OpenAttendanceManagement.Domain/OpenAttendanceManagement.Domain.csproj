@@ -7,12 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ResultBoxes" Version="0.3.23" />
-        <PackageReference Include="Sekiban.Core" Version="0.20.6"/>
+        <PackageReference Include="ResultBoxes" Version="0.3.24"/>
+        <PackageReference Include="Sekiban.Core" Version="0.21.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\..\Sekiban\src\Sekiban.Core\Sekiban.Core.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.AuthCommon\OpenAttendanceManagement.AuthCommon.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.Common\OpenAttendanceManagement.Common.csproj"/>
     </ItemGroup>

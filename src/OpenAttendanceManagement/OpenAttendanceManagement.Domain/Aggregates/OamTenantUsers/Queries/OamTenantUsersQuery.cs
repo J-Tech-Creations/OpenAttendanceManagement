@@ -17,7 +17,7 @@ public record OamTenantUsersQuery(TenantCode TenantCode)
     public ResultBox<IEnumerable<Record>> HandleSort(IEnumerable<Record> filteredList, IQueryContext context) =>
         ResultBox.FromValue(filteredList.OrderBy(m => m.DisplayName.Value).AsEnumerable());
 
-    public string TenantId => TenantCode.Value;
+    public string GetTenantId() => TenantCode.Value;
 
     public record Record(
         OamTenantUserId UserId,
