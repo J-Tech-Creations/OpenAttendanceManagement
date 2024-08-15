@@ -1,4 +1,6 @@
 using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
+using ResultBoxes;
+
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 
 public record OamConfirmedTenantUserInformation(
@@ -10,4 +12,6 @@ public record OamConfirmedTenantUserInformation(
         OamTenantUserId.Default,
         AuthIdentityId.Default,
         AuthIdentityEmail.Default);
+
+    public OptionalValue<OamTenantUserId> GetUserId() => TenantUserId;
 }

@@ -1,9 +1,11 @@
 ﻿@page "/"
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries
+@using OpenAttendanceManagement.Domain.Aggregates.Queries
 @using OpenAttendanceManagement.Web.Apis
 @inject TokenService TokenService
 @inject NavigationManager NavigationManager
 @inject TenantApiClient TenantApiClient;
+@inject UserApiClient UserApiClient;
 @inject TenantInformation TenantInformation;
 @rendermode @(new InteractiveServerRenderMode(false))
 
@@ -39,19 +41,31 @@ Welcome to your new app.
             </td>
         </tr>
     }
+    @MyUserInformation.Match(value => value.CurrentUserState, exception => exception.Message)
     </tbody>
 </table>
 
 
 @code {
+    ResultBox<MyUserInformationQuery.Result> MyUserInformation { get; set; } = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("Not loaded yet"));
 
     protected override Task OnParametersSetAsync()
         => TokenService.GetTokenAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login")).Conveyor(() => TenantApiClient.GetMyTenants());
+            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login")).Conveyor(() => TenantApiClient.GetMyTenants())
+            .Do(async () =>
+            {
+                if (TenantInformation.Tenant.HasValue)
+                {
+                    MyUserInformation = await UserApiClient.GetMyTenantUser();
+                    StateHasChanged();
+                }
+            });
 
-    private void ChangeTenant(BelongingTenantQuery.Record toChange)
+    private async Task ChangeTenant(BelongingTenantQuery.Record toChange)
     {
         TenantInformation.ChangeTenant(toChange.TenantId);
+        MyUserInformation = await UserApiClient.GetMyTenantUser();
+        StateHasChanged();
     }
 
 }

@@ -12,4 +12,6 @@ public record OamUnconfirmedTenantUserInformation(
         OamTenantUserId.Default,
         OptionalValue<AuthIdentityId>.Empty,
         AuthIdentityEmail.Default);
+
+    public OptionalValue<OamTenantUserId> GetUserId() => TenantUserId;
 }
