@@ -1,8 +1,10 @@
 ﻿@page "/admin"
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.Queries
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects
 @using OpenAttendanceManagement.Web.Apis
+@using Sekiban.Core.Query.QueryModel
 @attribute [StreamRendering]
 @attribute [OutputCache(Duration = 5)]
 
@@ -11,6 +13,7 @@
 @inject TokenService TokenService
 @inject NavigationManager NavigationManager
 @inject TenantInformation TenantInformation
+@inject UserApiClient UserApi
 @inject IJSRuntime JsRuntime
 @rendermode @(new InteractiveServerRenderMode(false))
 
@@ -20,10 +23,11 @@
 
 <p>This component demonstrates showing data loaded from a backend API service.</p>
 
-@if (forecasts == null)
+@if (!users.IsSuccess)
 {
     <p>
         <em>Loading...</em>
+        <span>@users.GetException().Message</span>
     </p>
 }
 else
@@ -31,23 +35,25 @@ else
     <table class="table">
         <thead>
         <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Display Name</th>
+            <th>Email</th>
+            <th>User Already Created</th>
             <th>
                 <button class="btn btn-info" @onclick="() => OpenCreateUserModal()">Add User</button>
             </th>
         </tr>
         </thead>
         <tbody>
-        @foreach (var forecast in forecasts)
+        @foreach (var user in users.GetValue().Items)
         {
             <tr>
-                <td>@forecast.Date.ToShortDateString()</td>
-                <td>@forecast.TemperatureC</td>
-                <td>@forecast.TemperatureF</td>
-                <td>@forecast.Summary</td>
+                <td>@user.UserName.FirstName</td>
+                <td>@user.UserName.LastName</td>
+                <td>@user.DisplayName.Value</td>
+                <td>@user.Email.Value</td>
+                <td>@user.IsUserCreated</td>
             </tr>
         }
         </tbody>
@@ -102,11 +108,14 @@ else
 
 @code {
     private WeatherForecast[]? forecasts;
+    private ResultBox<ListQueryResult<OamTenantUsersQuery.Record>> users = ListQueryResult<OamTenantUsersQuery.Record>.Empty;
 
     protected override async Task OnInitializedAsync()
     {
+        users = await UserApi.GetTenantUsers();
         forecasts = await WeatherApi.GetWeatherAsync();
     }
+
 
     protected override Task OnParametersSetAsync()
         => TokenService.GetTokenAsync()
@@ -145,10 +154,11 @@ else
         );
         if (result.IsSuccess)
         {
+            users = await UserApi.GetTenantUsers();
             // tenants = await Api.GetTenants();
             // addModel.TenantCode = string.Empty;
             // addModel.TenantName = string.Empty;
-            await JsRuntime.InvokeVoidAsync("DisplayAddModal", "hide");
+            await JsRuntime.InvokeVoidAsync("DisplayCreateUserModal", "hide");
         }
         else
         {
