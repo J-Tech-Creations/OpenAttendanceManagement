@@ -14,7 +14,6 @@ using Sekiban.Core;
 using Sekiban.Core.Dependency;
 using Sekiban.Infrastructure.Postgres;
 using Sekiban.Web.Authorizations;
-using Sekiban.Web.Authorizations.Definitions;
 using Sekiban.Web.Dependency;
 using Sekiban.Web.OpenApi.Extensions;
 
@@ -64,8 +63,7 @@ builder.AddSekibanWithDependency<OamDomainDependency>();
 builder.AddSekibanPostgresDbWithAzureBlobStorage();
 builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
     definition => definition.AuthorizationDefinitions =
-        new AuthorizeDefinitionCollectionWithUserManager<IdentityUser>(
-            new AllowOnlyWithRolesAndDenyIfNot<AllMethod, OamRoles>(OamRoles.SiteAdmin)));
+        new AuthorizeDefinitionCollectionWithUserManager<IdentityUser>());
 builder.Services.AddSwaggerGen(options => options.ConfigureForSekibanWeb());
 
 builder.Services.AddHttpContextAccessor();

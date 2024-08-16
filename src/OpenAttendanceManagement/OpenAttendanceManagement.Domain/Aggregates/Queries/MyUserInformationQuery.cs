@@ -17,9 +17,11 @@ public record MyUserInformationQuery(TenantCode TenantCode)
             .Combine(() =>
                 context.GetRequiredService<IOamUserManager>().Conveyor(manager => manager.GetExecutingUserEmail())
                     .Remap(AuthIdentityEmail.FromString))
-            .Conveyor((tenant, email) =>
-                ResultBox.CheckNull(
+            .Remap((tenant, email) =>
+                OptionalValue.FromNullableValue(
                     tenant.Payload.Users.FirstOrDefault(m => m.AuthIdentityEmail.NormalizedEquals(email))))
+            .Remap(optional =>
+                optional.Match(value => value, () => OamUnconfirmedUncreatedTenantUserInformation.Default))
             .Conveyor(information => information.GetUserId().Match(
                 userId => context.GetAggregateState<OamTenantUser>(userId.Value, TenantCode.Value)
                     .Conveyor(user => ResultBox.FromValue(new Result(OptionalValue.FromValue(

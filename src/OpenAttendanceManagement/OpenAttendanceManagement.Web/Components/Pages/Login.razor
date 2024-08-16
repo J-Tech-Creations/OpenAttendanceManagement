@@ -1,7 +1,10 @@
 @page "/login"
+@using System.Text.RegularExpressions
+@using OpenAttendanceManagement.Web.Apis
 @inject LoginClient LoginClient
 @inject TokenService TokenService
 @inject NavigationManager NavigationManager
+@inject UserApiClient UserApiClient
 @inject IJSRuntime JsRuntime
 
 @rendermode @(new InteractiveServerRenderMode(false))
@@ -145,16 +148,44 @@
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string PasswordReentered { get; set; } = string.Empty;
-        public string? AddError { get; }
+        public string? AddError { get; set; }
     }
 
     private async Task HandleCreateUserSubmit()
     {
+        // check if passwords match
+        if (createUserModel.Password != createUserModel.PasswordReentered)
+        {
+            createUserModel.AddError = "Passwords do not match";
+            return;
+        }
+
+        // check if email is valid using regex
+        if (!Regex.IsMatch(createUserModel.Email, @"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"))
+        {
+            createUserModel.AddError = "Invalid email";
+            return;
+        }
+
+        // check if password is at least 8 characters long and contains at least one number and lowercase letter and uppercase letter and some non-alphanumeric character
+        if (!Regex.IsMatch(createUserModel.Password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"))
+        {
+            createUserModel.AddError = "Password must be at least 8 characters long and contain at least one number, lowercase letter, and uppercase letter";
+            return;
+        }
+
         await Task.CompletedTask;
         Console.WriteLine(createUserModel.Email);
-        // Add logic to handle user creation
-        // If successful, hide the modal
-        await JsRuntime.InvokeVoidAsync("DisplayCreateUserModal", "hide");
+        var executedResult = await UserApiClient.CreateUser(new UserApiClient.CreateUserModel(createUserModel.Email, createUserModel.Password));
+        if (executedResult.IsSuccess)
+        {
+            createUserModel.AddError = null;
+            await JsRuntime.InvokeVoidAsync("DisplayCreateUserModal", "hide");
+        }
+        else
+        {
+            createUserModel.AddError = executedResult.GetException().Message;
+        }
     }
 
 }

@@ -1,6 +1,7 @@
-﻿@inject TokenService TokenService
+﻿@using OpenAttendanceManagement.Web.Apis
+@inject TokenService TokenService
 @inject NavigationManager NavigationManager
-
+@inject TenantInformation TenantInformation
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">OAM</a>
@@ -77,7 +78,7 @@
 
     private async Task LogOut()
     {
-        var result = await TokenService.LogOutAsync();
+        var result = await TokenService.LogOutAsync().Conveyor(TenantInformation.ClearTenant);
         if (result.IsSuccess)
         {
             NavigationManager.NavigateTo("/login");
