@@ -14,7 +14,7 @@ public class UserApiClient(HttpClient httpClient, TokenService tokenService, Ten
 {
     public Task<ResultBox<ListQueryResult<OamTenantUsersQuery.Record>>> GetTenantUsers(
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAsync()
+        tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success))
@@ -41,7 +41,7 @@ public class UserApiClient(HttpClient httpClient, TokenService tokenService, Ten
 
     public Task<ResultBox<MyUserInformationQuery.Result>> GetMyTenantUser(
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAsync()
+        tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success))

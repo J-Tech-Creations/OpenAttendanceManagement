@@ -121,17 +121,16 @@
                     { Email = loginForm.Email, Password = loginForm.Password, UseCookies = false },
                 CancellationToken.None)
             .Match(success => string.Empty, error => error.Message);
-        await TokenService.GetTokenAsync();
-
+        await TokenService.GetTokenAndRoleAsync();
         // if login was successful, redirect to /
         if (TokenService.SavedToken.HasValue)
         {
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/", true);
         }
     }
 
     protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAsync()
+        => TokenService.GetTokenAndRoleAsync()
             .Scan(
                 _ => { NavigationManager.NavigateTo("/"); },
                 _ => { });

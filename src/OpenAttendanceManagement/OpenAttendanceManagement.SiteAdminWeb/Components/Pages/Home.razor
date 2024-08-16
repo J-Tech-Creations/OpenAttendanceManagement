@@ -9,8 +9,9 @@
 Welcome to your new app.
 
 @code {
+
     protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAsync()
+        => TokenService.GetTokenAndRoleAsync()
             .ScanResult(
                 result =>
                 {
@@ -19,4 +20,5 @@ Welcome to your new app.
                         NavigationManager.NavigateTo("/login");
                     }
                 });
+
 }

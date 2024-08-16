@@ -50,16 +50,24 @@ Welcome to your new app.
     ResultBox<MyUserInformationQuery.Result> MyUserInformation { get; set; } = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("Not loaded yet"));
 
     protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login")).Conveyor(() => TenantApiClient.GetMyTenants())
-            .Do(async () =>
+        => TokenService.GetTokenAndRoleAsync()
+            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"))
+            .Conveyor(() => TenantApiClient.GetMyTenants())
+            .ScanResult(result => result.Log("after get tenants[home]"))
+            .Scan(async information =>
             {
-                if (TenantInformation.Tenant.HasValue)
+                if (information.Tenant.HasValue)
                 {
+                    Console.WriteLine("Tenant found :::" + information.Tenant.GetValue().TenantCode);
                     MyUserInformation = await UserApiClient.GetMyTenantUser();
                     StateHasChanged();
                 }
-            });
+                else
+                {
+                    Console.WriteLine("No tenant found :::");
+                }
+            })
+            .ScanResult(result => result.Log("after get my user[home]"));
 
     private async Task ChangeTenant(BelongingTenantQuery.Record toChange)
     {

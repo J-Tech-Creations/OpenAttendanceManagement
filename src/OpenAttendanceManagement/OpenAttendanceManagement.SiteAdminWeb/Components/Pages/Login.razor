@@ -67,7 +67,7 @@
                     { Email = loginForm.Email, Password = loginForm.Password, UseCookies = false },
                 CancellationToken.None)
             .Match(success => string.Empty, error => error.Message);
-        await TokenService.GetTokenAsync();
+        await TokenService.GetTokenAndRoleAsync();
         if (!TokenService.IsSiteAdmin)
         {
             errorMessage = "管理者アカウントでないとログインできません。";
@@ -81,7 +81,7 @@
     }
 
     protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAsync()
+        => TokenService.GetTokenAndRoleAsync()
             .ScanResult(
                 result =>
                 {

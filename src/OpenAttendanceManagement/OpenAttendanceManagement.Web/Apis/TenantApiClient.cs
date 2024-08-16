@@ -13,7 +13,7 @@ public class TenantApiClient(HttpClient httpClient, TokenService tokenService, T
 {
     public Task<ResultBox<TenantInformation>> GetMyTenants(
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAsync()
+        tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success))
@@ -33,7 +33,7 @@ public class TenantApiClient(HttpClient httpClient, TokenService tokenService, T
     public Task<ResultBox<UnitValue>> AddUserToTenant(
         OamTenantCreateUser command,
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAsync()
+        tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success))

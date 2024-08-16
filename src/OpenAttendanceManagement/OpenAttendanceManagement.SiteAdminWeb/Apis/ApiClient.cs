@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.Common;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
@@ -5,7 +6,7 @@ using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries;
 using ResultBoxes;
 using Sekiban.Core.Command;
 using Sekiban.Core.Query.QueryModel;
-using System.Net.Http.Headers;
+
 namespace OpenAttendanceManagement.SiteAdminWeb.Apis;
 
 public class ApiClient(HttpClient httpClient, TokenService tokenService)
@@ -16,19 +17,16 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
     {
         List<WeatherForecast>? forecasts = null;
 
-        await tokenService.GetTokenAsync()
+        await tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success));
 
         await foreach (var forecast in httpClient.GetFromJsonAsAsyncEnumerable<WeatherForecast>(
-            "/weatherforecast",
-            cancellationToken))
+                           "/weatherforecast",
+                           cancellationToken))
         {
-            if (forecasts?.Count >= maxItems)
-            {
-                break;
-            }
+            if (forecasts?.Count >= maxItems) break;
             if (forecast is not null)
             {
                 forecasts ??= [];
@@ -38,9 +36,10 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
 
         return forecasts?.ToArray() ?? [];
     }
+
     public Task<ResultBox<ListQueryResult<SimpleTenantQuery.Record>>> GetTenants(
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAsync()
+        tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success))
@@ -53,7 +52,7 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
     public Task<ResultBox<UnitValue>> AddTenant(
         CreateOamTenant command,
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAsync()
+        tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success))
@@ -71,7 +70,7 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
     public Task<ResultBox<UnitValue>> ChangeTenantName(
         ChangeOamTenantName command,
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAsync()
+        tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success))
@@ -85,10 +84,11 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
                 response =>
                     response.GetResultFromJsonAsync<CommandExecutorResponse>(cancellationToken))
             .Remap(_ => UnitValue.Unit);
+
     public Task<ResultBox<UnitValue>> DeleteTenant(
         DeleteOamTenant command,
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAsync()
+        tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success))
@@ -108,7 +108,7 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
     public Task<ResultBox<UnitValue>> AddTenantAdmin(
         OamTenantAddAuthIdentity command,
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAsync()
+        tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success))
@@ -126,7 +126,7 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
     public Task<ResultBox<UnitValue>> RemoveTenantAdmin(
         OamTenantRemoveAuthIdentity command,
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAsync()
+        tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success))

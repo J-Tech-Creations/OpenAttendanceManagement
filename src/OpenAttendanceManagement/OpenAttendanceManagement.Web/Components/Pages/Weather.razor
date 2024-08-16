@@ -54,7 +54,7 @@ else
     }
 
     protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAsync()
+        => TokenService.GetTokenAndRoleAsync()
             .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
 
 }
