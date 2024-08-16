@@ -33,36 +33,30 @@ public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpC
                 })
             .Do(_ => SavedToken = OptionalValue.FromValue(token));
 
-    public Task<ResultBox<string>> GetTokenAsync() =>
-        SavedToken.HasValue
-            ? ResultBox.FromValue(SavedToken.GetValue()).ToTask()
-            : ResultBox.WrapTry(
-                    async () => await protectedSessionStorage.GetAsync<string>(TokenKey))
-                .Conveyor(
-                    result => result.Success
-                        ?　ResultBox.CheckNull(
-                            result.Value,
-                            new TokenGetException("トークンが見つかりませんでした。(Null)"))
-                        : ResultBox<string>.Error(new TokenGetException("トークンが見つかりませんでした。")))
-                .Do(token => SavedToken = token)
-                .Do(
-                    token => httpClient.DefaultRequestHeaders.Authorization =
-                        new AuthenticationHeaderValue("Bearer", token))
-                .Do(
-                    _ => ResultBox.WrapTry(
-                            async () => new OptionalValue<List<string>>(
-                                await httpClient.GetFromJsonAsync<List<string>>(
-                                    "/user/roles")))
-                        .ScanResult(result => Console.WriteLine(result))
-                        .Conveyor(
-                            result => result.HasValue
-                                ? ResultBox.FromValue(result.GetValue())
-                                : ResultBox<List<string>>.Error(
-                                    new TokenGetException("ロールが見つかりませんでした。")))
-                        .Do(
-                            list => { Roles = list; }));
-
-    public ResultBox<UnitValue> RemoveTokenAsync()
-        => ResultBox.WrapTry(async () => await protectedSessionStorage.DeleteAsync(TokenKey))
-            .Remap(_ => UnitValue.Unit);
+    public Task<ResultBox<string>> GetTokenAndRoleAsync() =>
+        ResultBox.WrapTry(
+                async () => await protectedSessionStorage.GetAsync<string>(TokenKey))
+            .Conveyor(
+                result => result.Success
+                    ?　ResultBox.CheckNull(
+                        result.Value,
+                        new TokenGetException("トークンが見つかりませんでした。(Null)"))
+                    : ResultBox<string>.Error(new TokenGetException("トークンが見つかりませんでした。")))
+            .Do(token => SavedToken = token)
+            .Do(
+                token => httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token))
+            .Do(
+                _ => ResultBox.WrapTry(
+                        async () => new OptionalValue<List<string>>(
+                            await httpClient.GetFromJsonAsync<List<string>>(
+                                "/user/roles")))
+                    .ScanResult(result => result.Log("after get roles[TokenService]"))
+                    .Conveyor(
+                        result => result.HasValue
+                            ? ResultBox.FromValue(result.GetValue())
+                            : ResultBox<List<string>>.Error(
+                                new TokenGetException("ロールが見つかりませんでした。")))
+                    .Do(
+                        list => { Roles = list; }));
 }

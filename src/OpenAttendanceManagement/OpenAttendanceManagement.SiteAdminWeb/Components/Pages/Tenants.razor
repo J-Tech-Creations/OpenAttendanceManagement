@@ -239,12 +239,14 @@ else
 
 @code {
     private ResultBox<ListQueryResult<SimpleTenantQuery.Record>> tenants = ResultBox<ListQueryResult<SimpleTenantQuery.Record>>.Error(new ApplicationException("loading..."));
+
     protected override async Task OnInitializedAsync()
     {
         tenants = await Api.GetTenants();
     }
+
     protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAsync()
+        => TokenService.GetTokenAndRoleAsync()
             .ScanResult(
                 result =>
                 {
@@ -256,13 +258,16 @@ else
 
 
     #region add tenant
+
     private class AddModel
     {
         public string TenantCode { get; set; } = string.Empty;
         public string TenantName { get; set; } = string.Empty;
         public string? AddError { get; set; }
     }
+
     private readonly AddModel addModel = new();
+
     private async Task HandleAddModelSubmit()
     {
         await Task.CompletedTask;
@@ -280,9 +285,11 @@ else
             addModel.AddError = "登録に失敗しました。コードの重複などにご注意ください。";
         }
     }
+
     #endregion
 
     #region change tenant name
+
     private class ChangeNameModel
     {
         public Guid TenantId { get; set; } = Guid.Empty;
@@ -290,7 +297,9 @@ else
         public string TenantName { get; set; } = string.Empty;
         public string? ChangeError { get; set; }
     }
+
     private readonly ChangeNameModel changeNameModel = new();
+
     private void OpenChangeNameModal(SimpleTenantQuery.Record current)
     {
         changeNameModel.TenantId = current.TenantId;
@@ -299,6 +308,7 @@ else
 
         JsRuntime.InvokeVoidAsync("DisplayChangeModal", "show");
     }
+
     private async Task HandleChangeModelSubmit()
     {
         await Task.CompletedTask;
@@ -320,9 +330,11 @@ else
             changeNameModel.ChangeError = "名前の変更に失敗しました。コードの重複などにご注意ください。";
         }
     }
+
     #endregion
 
     #region delete tenant
+
     private class DeleteTenantModel
     {
         public Guid TenantId { get; set; } = Guid.Empty;
@@ -330,7 +342,9 @@ else
         public string TenantName { get; set; } = string.Empty;
         public string? Error { get; set; }
     }
+
     private readonly DeleteTenantModel deleteTenantModel = new();
+
     private void OpenDeleteTenantModal(SimpleTenantQuery.Record current)
     {
         deleteTenantModel.TenantId = current.TenantId;
@@ -339,6 +353,7 @@ else
 
         JsRuntime.InvokeVoidAsync("DisplayDeleteModal", "show");
     }
+
     private async Task HandleDeleteTenantSubmit()
     {
         await Task.CompletedTask;
@@ -357,10 +372,12 @@ else
             deleteTenantModel.Error = "削除に失敗しました。";
         }
     }
+
     #endregion
 
 
     #region addTenantAdmin
+
     private class AddTenantAdminModel
     {
         public Guid TenantId { get; set; } = Guid.Empty;
@@ -369,7 +386,9 @@ else
         public string TenantAdminEmail { get; set; } = string.Empty;
         public string? Error { get; set; }
     }
+
     private readonly AddTenantAdminModel addTenantAdminModel = new();
+
     private void OpenAddTenantAdminModal(SimpleTenantQuery.Record current)
     {
         addTenantAdminModel.TenantId = current.TenantId;
@@ -378,6 +397,7 @@ else
 
         JsRuntime.InvokeVoidAsync("DisplayAddTenantAdminModal", "show");
     }
+
     private async Task HandleAddTenantAdminSubmit()
     {
         await Task.CompletedTask;
@@ -398,11 +418,12 @@ else
             addTenantAdminModel.Error = "管理者の追加に失敗しました。";
         }
     }
+
     #endregion
 
 
-
     #region removeTenantAdmin
+
     private class RemoveTenantAdminModel
     {
         public Guid TenantId { get; set; } = Guid.Empty;
@@ -412,7 +433,9 @@ else
         public List<string> TenantAdminEmails { get; set; } = new();
         public string? Error { get; set; }
     }
+
     private readonly RemoveTenantAdminModel removeTenantAdminModel = new();
+
     private void OpenRemoveTenantAdminModal(SimpleTenantQuery.Record current)
     {
         removeTenantAdminModel.TenantId = current.TenantId;
@@ -421,6 +444,7 @@ else
         removeTenantAdminModel.TenantAdminEmails = current.AdminEmails;
         JsRuntime.InvokeVoidAsync("DisplayRemoveTenantAdminModal", "show");
     }
+
     private async Task HandleRemoveTenantAdminSubmit()
     {
         await Task.CompletedTask;
@@ -442,5 +466,7 @@ else
             removeTenantAdminModel.Error = "管理者の削除に失敗しました。";
         }
     }
+
     #endregion
+
 }

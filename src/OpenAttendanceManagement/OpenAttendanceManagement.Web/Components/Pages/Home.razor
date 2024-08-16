@@ -50,9 +50,10 @@ Welcome to your new app.
     ResultBox<MyUserInformationQuery.Result> MyUserInformation { get; set; } = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("Not loaded yet"));
 
     protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login")).Conveyor(() => TenantApiClient.GetMyTenants())
-            .Do(async () =>
+        => TokenService.GetTokenAndRoleAsync()
+            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"))
+            .Conveyor(() => TenantApiClient.GetMyTenants())
+            .Scan(async () =>
             {
                 if (TenantInformation.Tenant.HasValue)
                 {

@@ -12,7 +12,7 @@ public class WeatherApiClient(HttpClient httpClient, TokenService tokenService)
     {
         List<WeatherForecast>? forecasts = null;
 
-        await tokenService.GetTokenAsync()
+        await tokenService.GetTokenAndRoleAsync()
             .Do(
                 success => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", success));
