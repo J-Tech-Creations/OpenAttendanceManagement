@@ -53,21 +53,14 @@ Welcome to your new app.
         => TokenService.GetTokenAndRoleAsync()
             .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"))
             .Conveyor(() => TenantApiClient.GetMyTenants())
-            .ScanResult(result => result.Log("after get tenants[home]"))
-            .Scan(async information =>
+            .Scan(async () =>
             {
-                if (information.Tenant.HasValue)
+                if (TenantInformation.Tenant.HasValue)
                 {
-                    Console.WriteLine("Tenant found :::" + information.Tenant.GetValue().TenantCode);
                     MyUserInformation = await UserApiClient.GetMyTenantUser();
                     StateHasChanged();
                 }
-                else
-                {
-                    Console.WriteLine("No tenant found :::");
-                }
-            })
-            .ScanResult(result => result.Log("after get my user[home]"));
+            });
 
     private async Task ChangeTenant(BelongingTenantQuery.Record toChange)
     {
