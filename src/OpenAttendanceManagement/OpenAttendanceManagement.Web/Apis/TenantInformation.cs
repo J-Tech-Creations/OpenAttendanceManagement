@@ -16,4 +16,12 @@ public record TenantInformation(
     public ResultBox<UnitValue> ChangeTenant(Guid tenantId)
         => ResultBox.Start
             .Do(() => { Tenant = Tenants.FirstOrDefault(t => t.TenantId == tenantId) ?? Tenant; });
+
+    public ResultBox<UnitValue> ClearTenant()
+        =>
+            ResultBox.Start.Do(() =>
+            {
+                Tenant = OptionalValue<BelongingTenantQuery.Record>.Empty;
+                Tenants = new List<BelongingTenantQuery.Record>();
+            });
 }

@@ -64,8 +64,11 @@ Welcome to your new app.
     private async Task ChangeTenant(BelongingTenantQuery.Record toChange)
     {
         TenantInformation.ChangeTenant(toChange.TenantId);
-        MyUserInformation = await UserApiClient.GetMyTenantUser();
-        StateHasChanged();
+        if (TenantInformation.Tenant.HasValue)
+        {
+            MyUserInformation = await UserApiClient.GetMyTenantUser();
+            StateHasChanged();
+        }
     }
 
 }

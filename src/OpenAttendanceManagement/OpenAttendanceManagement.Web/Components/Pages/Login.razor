@@ -1,31 +1,98 @@
 @page "/login"
+@using System.Text.RegularExpressions
+@using OpenAttendanceManagement.Web.Apis
 @inject LoginClient LoginClient
 @inject TokenService TokenService
 @inject NavigationManager NavigationManager
+@inject UserApiClient UserApiClient
+@inject IJSRuntime JsRuntime
 
 @rendermode @(new InteractiveServerRenderMode(false))
 
-<h3>Login</h3>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Login</h3>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@loginForm" OnValidSubmit="HandleLogin" FormName="Login">
+                        <DataAnnotationsValidator/>
+                        <ValidationSummary class="text-danger"/>
 
-<EditForm Model="@loginForm" OnValidSubmit="HandleLogin" FormName="Login">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
-
-    <div>
-        <label>Email:</label>
-        <InputText @bind-Value="loginForm.Email"/>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <InputText id="email" class="form-control" @bind-Value="loginForm.Email"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <InputText id="password" class="form-control" @bind-Value="loginForm.Password" type="password"/>
+                        </div>
+                        <div class="form-group form-check">
+                            <InputCheckbox id="rememberMe" class="form-check-input" @bind-Value="loginForm.RememberMe"/>
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </EditForm>
+                    <button class="btn btn-secondary w-100 mt-3" @onclick="OpenCreateUserModal">Create User</button>
+                    @if (loggedIn)
+                    {
+                        <div class="alert alert-success mt-3">
+                            Login successful!
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger mt-3">
+                            @errorMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
-    <div>
-        <label>Password:</label>
-        <InputText @bind-Value="loginForm.Password" type="password"/>
+</div>
+<script>
+    function DisplayCreateUserModal(param) {
+        $('#createUserModal').modal(param);
+    }
+</script>
+<div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserModalLabel">Create User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@createUserModel" OnValidSubmit="HandleCreateUserSubmit">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    <div class="form-group">
+                        <label for="Email">User Email</label>
+                        <InputText id="Email" class="form-control" @bind-Value="createUserModel.Email"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="Password">Password</label>
+                        <InputText id="Password" class="form-control" @bind-Value="createUserModel.Password" type="password"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="PasswordReentered">Re-enter Password</label>
+                        <InputText id="PasswordReentered" class="form-control" @bind-Value="createUserModel.PasswordReentered" type="password"/>
+                    </div>
+                    @if (!string.IsNullOrEmpty(createUserModel.AddError))
+                    {
+                        <p>@createUserModel.AddError</p>
+                    }
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </EditForm>
+            </div>
+        </div>
     </div>
-    <div>
-        <InputCheckbox @bind-Value="loginForm.RememberMe"/>
-        <label>Remember me</label>
-    </div>
-    <button type="submit">Login</button>
-</EditForm>
-
+</div>
 @if (loggedIn)
 {
     <p>Login successful! Token: @TokenService.SavedToken.Value</p>
@@ -46,6 +113,7 @@
         public string? Password { get; set; } = string.Empty;
         public bool RememberMe { get; set; }
     }
+
     private async Task HandleLogin()
     {
         errorMessage = await LoginClient.LoginAsync(
@@ -61,12 +129,63 @@
             NavigationManager.NavigateTo("/");
         }
     }
+
     protected override Task OnParametersSetAsync()
         => TokenService.GetTokenAsync()
             .Scan(
-                _ =>
-                {
-                    NavigationManager.NavigateTo("/");
-                },
+                _ => { NavigationManager.NavigateTo("/"); },
                 _ => { });
+
+    private void OpenCreateUserModal()
+    {
+        JsRuntime.InvokeVoidAsync("DisplayCreateUserModal", "show");
+    }
+
+    private readonly TenantUserCreateModel createUserModel = new();
+
+    private class TenantUserCreateModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string PasswordReentered { get; set; } = string.Empty;
+        public string? AddError { get; set; }
+    }
+
+    private async Task HandleCreateUserSubmit()
+    {
+        // check if passwords match
+        if (createUserModel.Password != createUserModel.PasswordReentered)
+        {
+            createUserModel.AddError = "Passwords do not match";
+            return;
+        }
+
+        // check if email is valid using regex
+        if (!Regex.IsMatch(createUserModel.Email, @"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"))
+        {
+            createUserModel.AddError = "Invalid email";
+            return;
+        }
+
+        // check if password is at least 8 characters long and contains at least one number and lowercase letter and uppercase letter and some non-alphanumeric character
+        if (!Regex.IsMatch(createUserModel.Password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"))
+        {
+            createUserModel.AddError = "Password must be at least 8 characters long and contain at least one number, lowercase letter, and uppercase letter";
+            return;
+        }
+
+        await Task.CompletedTask;
+        Console.WriteLine(createUserModel.Email);
+        var executedResult = await UserApiClient.CreateUser(new UserApiClient.CreateUserModel(createUserModel.Email, createUserModel.Password));
+        if (executedResult.IsSuccess)
+        {
+            createUserModel.AddError = null;
+            await JsRuntime.InvokeVoidAsync("DisplayCreateUserModal", "hide");
+        }
+        else
+        {
+            createUserModel.AddError = executedResult.GetException().Message;
+        }
+    }
+
 }
