@@ -82,8 +82,13 @@ Welcome to your new app.
                 if (TenantInformation.Tenant.HasValue)
                 {
                     MyUserInformation = await UserApiClient.GetMyTenantUser();
-                    StateHasChanged();
                 }
+                else
+                {
+                    MyUserInformation = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("You don't have tenant invitation yet."));
+                }
+
+                StateHasChanged();
             });
 
     private async Task ChangeTenant(BelongingTenantQuery.Record toChange)

@@ -21,6 +21,7 @@ public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpC
             async () =>
             {
                 await protectedSessionStorage.DeleteAsync(TokenKey);
+                await protectedSessionStorage.DeleteAsync(EmailKey);
                 SavedToken = OptionalValue<string>.Empty;
                 Roles = new List<string>();
                 return UnitValue.Unit;
@@ -55,10 +56,6 @@ public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpC
             .Do(
                 token => httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", token))
-            // .Conveyor(() => ResultBox.WrapTry(
-            //     async () => await protectedSessionStorage.GetAsync<string>(EmailKey)))
-            // .Conveyor(emailStorage => ResultBox.CheckNull(emailStorage.Value))
-            // .Do(email => SavedEmail = email)
             .Do(
                 _ => ResultBox.WrapTry(
                         async () => new OptionalValue<List<string>>(
@@ -71,5 +68,12 @@ public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpC
                             : ResultBox<List<string>>.Error(
                                 new TokenGetException("ロールが見つかりませんでした。")))
                     .Do(
-                        list => { Roles = list; }));
+                        list => { Roles = list; }))
+            .Conveyor(() => ResultBox.WrapTry(
+                async () => await protectedSessionStorage.GetAsync<string>(EmailKey)))
+            .Conveyor(emailStorage => ResultBox.CheckNull(emailStorage.Value))
+            .Do(email => SavedEmail = email)
+            .Conveyor(() => SavedToken.HasValue
+                ? ResultBox.FromValue(SavedToken.GetValue())
+                : ResultBox<string>.Error(new TokenGetException("トークンが見つかりませんでした。")));
 }
