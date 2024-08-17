@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects
 @using OpenAttendanceManagement.Domain.Aggregates.Queries
@@ -53,7 +54,10 @@ Welcome to your new app.
             switch (user.CurrentUserState, user.ExistingUser.HasValue)
             {
                 case (nameof(OamUnconfirmedTenantUserInformation), true):
-                    <button>Join Tenant @TenantInformation.Tenant.GetValue().TenantCode</button>
+                    <button class="btn btn-info" @onclick="() => AcceptInvitation()">Join Tenant @TenantInformation.Tenant.GetValue().TenantCode</button>
+                    break;
+                case (nameof(OamConfirmedTenantUserInformation), true):
+                    <span>Welcome to tenant @TenantInformation.Tenant.GetValue().TenantCode !!!</span>
                     break;
                 default:
                     <p>
@@ -98,6 +102,20 @@ Welcome to your new app.
         {
             MyUserInformation = await UserApiClient.GetMyTenantUser();
             StateHasChanged();
+        }
+    }
+
+    private async Task AcceptInvitation()
+    {
+        if (TenantInformation.Tenant.HasValue)
+        {
+            var tenant = TenantInformation.Tenant.GetValue();
+            var result = await TenantApiClient.AddUserAcceptInviteOnTenant(new OamTenantUserAcceptInvite(new TenantCode(tenant.TenantCode), new OamTenantId(tenant.TenantId)));
+            if (result.IsSuccess)
+            {
+                MyUserInformation = await UserApiClient.GetMyTenantUser();
+                StateHasChanged();
+            }
         }
     }
 
