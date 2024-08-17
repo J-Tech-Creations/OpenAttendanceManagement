@@ -1,5 +1,7 @@
 ﻿@page "/"
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects
 @using OpenAttendanceManagement.Domain.Aggregates.Queries
 @using OpenAttendanceManagement.Web.Apis
 @inject TokenService TokenService
@@ -41,7 +43,33 @@ Welcome to your new app.
             </td>
         </tr>
     }
-    @MyUserInformation.Match(value => value.CurrentUserState, exception => exception.Message)
+    @switch (MyUserInformation)
+    {
+        case { IsSuccess : false } failure:
+            <p>@failure.GetException().Message</p>
+            break;
+        case { IsSuccess: true } success:
+        {
+            var user = success.GetValue();
+            switch (user.CurrentUserState, user.ExistingUser.HasValue)
+            {
+                case (nameof(OamUnconfirmedTenantUserInformation), true):
+                    <button class="btn btn-info" @onclick="() => AcceptInvitation()">Join Tenant @TenantInformation.Tenant.GetValue().TenantCode</button>
+                    break;
+                case (nameof(OamConfirmedTenantUserInformation), true):
+                    <span>Welcome to tenant @TenantInformation.Tenant.GetValue().TenantCode !!!</span>
+                    break;
+                default:
+                    <p>
+                        No Invitation for the @TenantInformation.Tenant.Match(v => v.TenantCode, () => "[no tenant]") yet. Please ask administarator to add your email address.
+                        @TokenService.SavedEmail.Match(v => v, () => "[no email]")
+                    </p>
+                    break;
+            }
+
+            break;
+        }
+    }
     </tbody>
 </table>
 
@@ -58,8 +86,13 @@ Welcome to your new app.
                 if (TenantInformation.Tenant.HasValue)
                 {
                     MyUserInformation = await UserApiClient.GetMyTenantUser();
-                    StateHasChanged();
                 }
+                else
+                {
+                    MyUserInformation = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("You don't have tenant invitation yet."));
+                }
+
+                StateHasChanged();
             });
 
     private async Task ChangeTenant(BelongingTenantQuery.Record toChange)
@@ -69,6 +102,20 @@ Welcome to your new app.
         {
             MyUserInformation = await UserApiClient.GetMyTenantUser();
             StateHasChanged();
+        }
+    }
+
+    private async Task AcceptInvitation()
+    {
+        if (TenantInformation.Tenant.HasValue)
+        {
+            var tenant = TenantInformation.Tenant.GetValue();
+            var result = await TenantApiClient.AddUserAcceptInviteOnTenant(new OamTenantUserAcceptInvite(new TenantCode(tenant.TenantCode), new OamTenantId(tenant.TenantId)));
+            if (result.IsSuccess)
+            {
+                MyUserInformation = await UserApiClient.GetMyTenantUser();
+                StateHasChanged();
+            }
         }
     }
 

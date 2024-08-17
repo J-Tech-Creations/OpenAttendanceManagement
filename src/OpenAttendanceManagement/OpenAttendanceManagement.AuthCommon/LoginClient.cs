@@ -1,6 +1,7 @@
+using System.Net.Http.Json;
 using OpenAttendanceManagement.Common.Exceptions;
 using ResultBoxes;
-using System.Net.Http.Json;
+
 namespace OpenAttendanceManagement.AuthCommon;
 
 public class LoginClient(HttpClient httpClient, TokenService tokenService)
@@ -15,9 +16,7 @@ public class LoginClient(HttpClient httpClient, TokenService tokenService)
                     async response => ResultBox.CheckNull(
                         await response.Content.ReadFromJsonAsync<LoginResponse>(cancellationToken),
                         new LoginException("ログインに失敗しました。")))
-                .Do(response => tokenService.SaveTokenAsync(response.AccessToken));
-
-
+                .Do(response => tokenService.SaveTokenAsync(response.AccessToken, request.Email ?? string.Empty));
 
     public record LoginRequest
     {
@@ -25,6 +24,7 @@ public class LoginClient(HttpClient httpClient, TokenService tokenService)
         public string? Password { get; set; } = string.Empty;
         public bool UseCookies { get; set; } = false;
     }
+
     public record LoginResponse(
         string TokenType,
         string AccessToken,

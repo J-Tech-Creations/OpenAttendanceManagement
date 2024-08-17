@@ -9,7 +9,9 @@ namespace OpenAttendanceManagement.AuthCommon;
 public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpClient httpClient)
 {
     private const string TokenKey = "authToken";
+    private const string EmailKey = "emailKey";
     public OptionalValue<string> SavedToken { get; private set; } = OptionalValue<string>.Empty;
+    public OptionalValue<string> SavedEmail { get; private set; } = OptionalValue<string>.Empty;
     public bool IsSiteAdmin => Roles.Contains("SiteAdmin");
     public List<string> Roles { get; private set; } = new();
     public bool HasToken => SavedToken.HasValue;
@@ -19,19 +21,27 @@ public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpC
             async () =>
             {
                 await protectedSessionStorage.DeleteAsync(TokenKey);
+                await protectedSessionStorage.DeleteAsync(EmailKey);
                 SavedToken = OptionalValue<string>.Empty;
                 Roles = new List<string>();
                 return UnitValue.Unit;
             });
 
-    public Task<ResultBox<UnitValue>> SaveTokenAsync(string token)
+    public Task<ResultBox<UnitValue>> SaveTokenAsync(string token, string email)
         => ResultBox.WrapTry(
                 async () =>
                 {
                     await protectedSessionStorage.SetAsync(TokenKey, token);
                     return UnitValue.Unit;
                 })
-            .Do(_ => SavedToken = OptionalValue.FromValue(token));
+            .Do(_ => SavedToken = OptionalValue.FromValue(token))
+            .Conveyor(() => ResultBox.WrapTry(
+                async () =>
+                {
+                    await protectedSessionStorage.SetAsync(EmailKey, email);
+                    return UnitValue.Unit;
+                }))
+            .Do(_ => SavedEmail = OptionalValue.FromValue(email));
 
     public Task<ResultBox<string>> GetTokenAndRoleAsync() =>
         ResultBox.WrapTry(
@@ -58,5 +68,12 @@ public class TokenService(ProtectedSessionStorage protectedSessionStorage, HttpC
                             : ResultBox<List<string>>.Error(
                                 new TokenGetException("ロールが見つかりませんでした。")))
                     .Do(
-                        list => { Roles = list; }));
+                        list => { Roles = list; }))
+            .Conveyor(() => ResultBox.WrapTry(
+                async () => await protectedSessionStorage.GetAsync<string>(EmailKey)))
+            .Conveyor(emailStorage => ResultBox.CheckNull(emailStorage.Value))
+            .Do(email => SavedEmail = email)
+            .Conveyor(() => SavedToken.HasValue
+                ? ResultBox.FromValue(SavedToken.GetValue())
+                : ResultBox<string>.Error(new TokenGetException("トークンが見つかりませんでした。")));
 }
