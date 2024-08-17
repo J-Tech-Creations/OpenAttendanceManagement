@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects
 @using OpenAttendanceManagement.Domain.Aggregates.Queries
 @using OpenAttendanceManagement.Web.Apis
 @inject TokenService TokenService
@@ -41,7 +42,30 @@ Welcome to your new app.
             </td>
         </tr>
     }
-    @MyUserInformation.Match(value => value.CurrentUserState, exception => exception.Message)
+    @switch (MyUserInformation)
+    {
+        case { IsSuccess : false } failure:
+            <p>@failure.GetException().Message</p>
+            break;
+        case { IsSuccess: true } success:
+        {
+            var user = success.GetValue();
+            switch (user.CurrentUserState, user.ExistingUser.HasValue)
+            {
+                case (nameof(OamUnconfirmedTenantUserInformation), true):
+                    <button>Join Tenant @TenantInformation.Tenant.GetValue().TenantCode</button>
+                    break;
+                default:
+                    <p>
+                        No Invitation for the @TenantInformation.Tenant.Match(v => v.TenantCode, () => "[no tenant]") yet. Please ask administarator to add your email address.
+                        @TokenService.SavedEmail.Match(v => v, () => "[no email]")
+                    </p>
+                    break;
+            }
+
+            break;
+        }
+    }
     </tbody>
 </table>
 

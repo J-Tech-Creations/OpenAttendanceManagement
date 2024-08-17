@@ -59,7 +59,7 @@ builder.Services.AddSession(
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
     });
-builder.Services.AddSingleton(TenantInformation.Empty);
+builder.Services.AddScoped(_ => TenantInformation.Empty);
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

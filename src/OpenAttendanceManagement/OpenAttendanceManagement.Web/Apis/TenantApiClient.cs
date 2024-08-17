@@ -47,4 +47,22 @@ public class TenantApiClient(HttpClient httpClient, TokenService tokenService, T
                 response =>
                     response.GetResultFromJsonAsync<CommandExecutorResponse>(cancellationToken))
             .Remap(_ => UnitValue.Unit);
+
+    public Task<ResultBox<UnitValue>> AddUserAcceptInviteOnTenant(
+        OamTenantUserAcceptInvite command,
+        CancellationToken cancellationToken = default) =>
+        tokenService.GetTokenAndRoleAsync()
+            .Do(
+                success => httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", success))
+            .Conveyor(
+                async _ => ResultBox.CheckNull(
+                    await httpClient.PostAsJsonAsync(
+                        "/api/command/oamtenant/oamtenantuseracceptinvite",
+                        command,
+                        cancellationToken)))
+            .Conveyor(
+                response =>
+                    response.GetResultFromJsonAsync<CommandExecutorResponse>(cancellationToken))
+            .Remap(_ => UnitValue.Unit);
 }
