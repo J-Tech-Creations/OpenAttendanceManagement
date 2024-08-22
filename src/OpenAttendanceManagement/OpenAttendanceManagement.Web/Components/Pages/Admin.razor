@@ -110,16 +110,16 @@ else
     private WeatherForecast[]? forecasts;
     private ResultBox<ListQueryResult<OamTenantUsersQuery.Record>> users = ListQueryResult<OamTenantUsersQuery.Record>.Empty;
 
-    protected override async Task OnInitializedAsync()
-    {
-        users = await UserApi.GetTenantUsers();
-        forecasts = await WeatherApi.GetWeatherAsync();
-    }
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     users = await UserApi.GetTenantUsers();
+    //     forecasts = await WeatherApi.GetWeatherAsync();
+    // }
 
 
-    protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAndRoleAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+    // protected override Task OnParametersSetAsync()
+    //     => TokenService.UpdateRoleAsync()
+    //         .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
 
     #region add tenant user
 

@@ -1,6 +1,4 @@
-using System.Net.Http.Headers;
 using OpenAttendanceManagement.AuthCommon;
-using ResultBoxes;
 
 namespace OpenAttendanceManagement.Web.Apis;
 
@@ -12,10 +10,7 @@ public class WeatherApiClient(HttpClient httpClient, TokenService tokenService)
     {
         List<WeatherForecast>? forecasts = null;
 
-        await tokenService.GetTokenAndRoleAsync()
-            .Do(
-                success => httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", success));
+        await tokenService.SetTokenToHeader(httpClient);
 
         await foreach (var forecast in httpClient.GetFromJsonAsAsyncEnumerable<WeatherForecast>(
                            "/weatherforecast",

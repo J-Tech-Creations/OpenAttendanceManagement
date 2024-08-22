@@ -33,7 +33,7 @@
                     @if (loggedIn)
                     {
                         <div class="alert alert-success mt-3">
-                            Login successful! Token: @TokenService.SavedToken.Value
+                            Login successful!
                         </div>
                     }
                     @if (!string.IsNullOrEmpty(errorMessage))
@@ -50,7 +50,7 @@
 
 @code {
     private readonly LoginForm loginForm = new();
-    private bool loggedIn => TokenService.HasToken;
+    private bool loggedIn;
     private string? errorMessage;
 
     public class LoginForm
@@ -67,21 +67,26 @@
                     { Email = loginForm.Email, Password = loginForm.Password, UseCookies = false },
                 CancellationToken.None)
             .Match(success => string.Empty, error => error.Message);
-        await TokenService.GetTokenAndRoleAsync();
+        await TokenService.UpdateRoleAsync();
         if (!TokenService.IsSiteAdmin)
         {
             errorMessage = "管理者アカウントでないとログインできません。";
         }
 
         // if login was successful, redirect to /
-        if (TokenService.SavedToken.HasValue && TokenService.IsSiteAdmin)
-        {
-            NavigationManager.NavigateTo("/");
-        }
+        await TokenService.UpdateRoleAsync()
+            .ScanResult(result =>
+            {
+                if (result.IsSuccess && TokenService.IsSiteAdmin)
+                {
+                    loggedIn = true;
+                    NavigationManager.NavigateTo("/");
+                }
+            });
     }
 
     protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAndRoleAsync()
+        => TokenService.UpdateRoleAsync()
             .ScanResult(
                 result =>
                 {

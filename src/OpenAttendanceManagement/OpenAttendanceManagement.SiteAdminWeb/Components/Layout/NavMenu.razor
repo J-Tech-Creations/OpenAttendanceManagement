@@ -12,7 +12,7 @@
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            @if (TokenService.HasToken)
+            @if (IsLoggedIn)
             {
                 <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                     <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
@@ -21,7 +21,7 @@
         </div>
 
         <div class="nav-item px-3">
-            @if (TokenService.HasToken)
+            @if (IsLoggedIn)
             {
                 <NavLink class="nav-link" href="counter">
                     <span class="bi bi-plus-square-fill" aria-hidden="true"></span> Counter
@@ -30,7 +30,7 @@
         </div>
 
         <div class="nav-item px-3">
-            @if (TokenService.HasToken)
+            @if (IsLoggedIn)
             {
                 <NavLink class="nav-link" href="weather">
                     <span class="bi bi-list-nested" aria-hidden="true"></span> Weather
@@ -38,7 +38,7 @@
             }
         </div>
         <div class="nav-item px-3">
-            @if (!TokenService.HasToken)
+            @if (!IsLoggedIn)
             {
                 <NavLink class="nav-link" href="login">
                     <span class="bi bi-list-nested" aria-hidden="true"></span> Login
@@ -46,7 +46,7 @@
             }
         </div>
         <div class="nav-item px-3">
-            @if (TokenService.HasToken && TokenService.IsSiteAdmin)
+            @if (IsLoggedIn && IsSiteAdmin)
             {
                 <NavLink class="nav-link" href="tenants">
                     <span class="bi bi-list-nested" aria-hidden="true"></span> Tenant
@@ -54,7 +54,7 @@
             }
         </div>
         <div class="nav-item px-3">
-            @if (TokenService.HasToken && TokenService.IsSiteAdmin)
+            @if (IsLoggedIn && TokenService.IsSiteAdmin)
             {
                 <div @onclick="LogOut">
                     <NavLink class="nav-link">
@@ -67,10 +67,22 @@
 </div>
 
 @code {
-    private bool IsLoggedIn = false;
-    protected override Task OnParametersSetAsync() => TokenService.GetTokenAndRoleAsync().ScanResult(result => IsLoggedIn = result.IsSuccess);
+    private bool IsLoggedIn = true;
+    private bool IsSiteAdmin = true;
 
-    public Task StateHasChangedAsync() => TokenService.GetTokenAndRoleAsync()
+    protected override async Task OnParametersSetAsync()
+    {
+        Console.WriteLine("OnParametersSetAsync NavMenu start");
+        await base.OnParametersSetAsync();
+        Console.WriteLine("OnParametersSetAsync NavMenu end");
+    }
+    //     => TokenService.UpdateRoleAsync().ScanResult(result =>
+    // {
+    //     IsLoggedIn = result.IsSuccess;
+    //     IsSiteAdmin = TokenService.IsSiteAdmin;
+    // });
+
+    public Task StateHasChangedAsync() => TokenService.GetTokenAsync()
         .ScanResult(result => IsLoggedIn = result.IsSuccess)
         .DoResult(
             _ => { StateHasChanged(); });

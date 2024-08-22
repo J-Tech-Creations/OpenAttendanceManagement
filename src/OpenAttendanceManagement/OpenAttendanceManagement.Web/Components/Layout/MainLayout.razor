@@ -24,20 +24,43 @@
 </div>
 
 @code {
-    private NavMenu navMenu = new();
+    private NavMenu navMenu;
 
-    protected override void OnInitialized()
+    // protected override void OnInitialized()
+    // {
+    //     Console.WriteLine("OnInitialized MainLayout start");
+    //     // NavigationManager.LocationChanged += HandleLocationChanged;
+    //
+    //     Console.WriteLine("OnInitialized MainLayout end");
+    // }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        NavigationManager.LocationChanged += HandleLocationChanged;
+        Console.WriteLine("OnAfterRenderAsync MainLayout start");
+        // await navMenu.StateHasChangedAsync();
+        await base.OnAfterRenderAsync(firstRender);
+        Console.WriteLine("OnAfterRenderAsync MainLayout end");
     }
 
-    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    protected override async Task OnParametersSetAsync()
     {
-        navMenu.StateHasChangedAsync();
+        Console.WriteLine("OnParametersSetAsync MainLayout start");
+        // await navMenu.StateHasChangedAsync();
+        await base.OnParametersSetAsync();
+        Console.WriteLine("OnParametersSetAsync MainLayout end");
     }
 
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= HandleLocationChanged;
-    }
+    // private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    // {
+    //     Console.WriteLine("HandleLocationChanged MainLayout Start");
+    //     _ = navMenu.StateHasChangedAsync();
+    //     Console.WriteLine("HandleLocationChanged MainLayout End");
+    // }
+    //
+    // public void Dispose()
+    // {
+    //     Console.WriteLine("Dispose MainLayout");
+    //     // NavigationManager.LocationChanged -= HandleLocationChanged;
+    // }
+    //
 }

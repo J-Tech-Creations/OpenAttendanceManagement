@@ -11,7 +11,7 @@ Welcome to your new app.
 @code {
 
     protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAndRoleAsync()
+        => TokenService.UpdateRoleAsync()
             .ScanResult(
                 result =>
                 {

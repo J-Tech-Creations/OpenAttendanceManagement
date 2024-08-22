@@ -20,7 +20,7 @@
     }
 
     protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAndRoleAsync()
+        => TokenService.UpdateRoleAsync()
             .ScanResult(
                 result =>
                 {

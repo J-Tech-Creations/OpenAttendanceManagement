@@ -7,8 +7,6 @@
 @inject UserApiClient UserApiClient
 @inject IJSRuntime JsRuntime
 
-@rendermode @(new InteractiveServerRenderMode(false))
-
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -36,12 +34,6 @@
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </EditForm>
                     <button class="btn btn-secondary w-100 mt-3" @onclick="OpenCreateUserModal">Create User</button>
-                    @if (loggedIn)
-                    {
-                        <div class="alert alert-success mt-3">
-                            Login successful!
-                        </div>
-                    }
                     @if (!string.IsNullOrEmpty(errorMessage))
                     {
                         <div class="alert alert-danger mt-3">
@@ -93,10 +85,6 @@
         </div>
     </div>
 </div>
-@if (loggedIn)
-{
-    <p>Login successful! Token: @TokenService.SavedToken.Value</p>
-}
 @if (!string.IsNullOrEmpty(errorMessage))
 {
     <p>@errorMessage</p>
@@ -104,7 +92,6 @@
 
 @code {
     private readonly LoginForm loginForm = new();
-    private bool loggedIn => TokenService.HasToken;
     private string? errorMessage;
 
     public class LoginForm
@@ -121,19 +108,14 @@
                     { Email = loginForm.Email, Password = loginForm.Password, UseCookies = false },
                 CancellationToken.None)
             .Match(success => string.Empty, error => error.Message);
-        await TokenService.GetTokenAndRoleAsync();
-        // if login was successful, redirect to /
-        if (TokenService.SavedToken.HasValue)
+        await TokenService.UpdateRoleAsync().ScanResult(roleUpdated =>
         {
-            NavigationManager.NavigateTo("/", true);
-        }
+            if (roleUpdated.IsSuccess)
+            {
+                NavigationManager.NavigateTo("/", true);
+            }
+        });
     }
-
-    protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAndRoleAsync()
-            .Scan(
-                _ => { NavigationManager.NavigateTo("/"); },
-                _ => { });
 
     private void OpenCreateUserModal()
     {

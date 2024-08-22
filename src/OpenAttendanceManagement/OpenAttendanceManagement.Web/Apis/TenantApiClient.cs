@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.Common;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
@@ -13,10 +12,7 @@ public class TenantApiClient(HttpClient httpClient, TokenService tokenService, T
 {
     public Task<ResultBox<TenantInformation>> GetMyTenants(
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAndRoleAsync()
-            .Do(
-                success => httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", success))
+        tokenService.SetTokenToHeader(httpClient)
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.GetFromJsonAsync<ListQueryResult<BelongingTenantQuery.Record>>(
@@ -33,10 +29,7 @@ public class TenantApiClient(HttpClient httpClient, TokenService tokenService, T
     public Task<ResultBox<UnitValue>> AddUserToTenant(
         OamTenantCreateUser command,
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAndRoleAsync()
-            .Do(
-                success => httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", success))
+        tokenService.SetTokenToHeader(httpClient)
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.PostAsJsonAsync(
@@ -45,16 +38,13 @@ public class TenantApiClient(HttpClient httpClient, TokenService tokenService, T
                         cancellationToken)))
             .Conveyor(
                 response =>
-                    response.GetResultFromJsonAsync<CommandExecutorResponse>(cancellationToken))
+                    ResultBox.FromValue(response.GetResultFromJsonAsync<CommandExecutorResponse>(cancellationToken)))
             .Remap(_ => UnitValue.Unit);
 
     public Task<ResultBox<UnitValue>> AddUserAcceptInviteOnTenant(
         OamTenantUserAcceptInvite command,
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAndRoleAsync()
-            .Do(
-                success => httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", success))
+        tokenService.SetTokenToHeader(httpClient)
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.PostAsJsonAsync(

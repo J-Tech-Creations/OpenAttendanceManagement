@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Net.Http.Headers;
 using System.Web;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.Common;
@@ -14,10 +13,7 @@ public class UserApiClient(HttpClient httpClient, TokenService tokenService, Ten
 {
     public Task<ResultBox<ListQueryResult<OamTenantUsersQuery.Record>>> GetTenantUsers(
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAndRoleAsync()
-            .Do(
-                success => httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", success))
+        tokenService.SetTokenToHeader(httpClient)
             .Conveyor(() => ResultBox.CheckNull(httpClient.BaseAddress))
             .Conveyor(baseAddress =>
             {
@@ -41,10 +37,7 @@ public class UserApiClient(HttpClient httpClient, TokenService tokenService, Ten
 
     public Task<ResultBox<MyUserInformationQuery.Result>> GetMyTenantUser(
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAndRoleAsync()
-            .Do(
-                success => httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", success))
+        tokenService.SetTokenToHeader(httpClient)
             .Conveyor(() => ResultBox.CheckNull(httpClient.BaseAddress))
             .Conveyor(baseAddress =>
             {

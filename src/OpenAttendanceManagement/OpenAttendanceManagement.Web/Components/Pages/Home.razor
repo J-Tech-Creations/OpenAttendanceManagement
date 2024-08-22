@@ -62,7 +62,7 @@ Welcome to your new app.
                 default:
                     <p>
                         No Invitation for the @TenantInformation.Tenant.Match(v => v.TenantCode, () => "[no tenant]") yet. Please ask administarator to add your email address.
-                        @TokenService.SavedEmail.Match(v => v, () => "[no email]")
+                        @(TokenService.GetEmailAsync().Result).Match(v => v, () => "[no email]")
                     </p>
                     break;
             }
@@ -77,23 +77,23 @@ Welcome to your new app.
 @code {
     ResultBox<MyUserInformationQuery.Result> MyUserInformation { get; set; } = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("Not loaded yet"));
 
-    protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAndRoleAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"))
-            .Conveyor(() => TenantApiClient.GetMyTenants())
-            .Scan(async () =>
-            {
-                if (TenantInformation.Tenant.HasValue)
-                {
-                    MyUserInformation = await UserApiClient.GetMyTenantUser();
-                }
-                else
-                {
-                    MyUserInformation = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("You don't have tenant invitation yet."));
-                }
-
-                StateHasChanged();
-            });
+    // protected override async Task OnParametersSetAsync()
+    //     => await TokenService.GetTokenAsync()
+    //         .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"))
+    //         .Conveyor(() => TenantApiClient.GetMyTenants())
+    //         .Scan(async () =>
+    //         {
+    //             if (TenantInformation.Tenant.HasValue)
+    //             {
+    //                 MyUserInformation = await UserApiClient.GetMyTenantUser();
+    //             }
+    //             else
+    //             {
+    //                 MyUserInformation = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("You don't have tenant invitation yet."));
+    //             }
+    //
+    //             StateHasChanged();
+    //         });
 
     private async Task ChangeTenant(BelongingTenantQuery.Record toChange)
     {
