@@ -48,27 +48,23 @@ else
 @code {
     private WeatherForecast[]? forecasts;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
+        try
         {
-            try
-            {
-                forecasts = await WeatherApi.GetWeatherAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
-            StateHasChanged();
+            forecasts = await WeatherApi.GetWeatherAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
 
-        await base.OnAfterRenderAsync(firstRender);
+        await base.OnInitializedAsync();
     }
 
-    // protected override Task OnParametersSetAsync()
-    //     => TokenService.GetTokenAsync()
-    //         .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+    protected override Task OnParametersSetAsync()
+        => TokenService.GetTokenAsync()
+            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
 
 }

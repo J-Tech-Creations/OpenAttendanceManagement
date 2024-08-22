@@ -72,22 +72,22 @@
     private bool IsSiteAdmin = true;
 
     protected override async Task OnParametersSetAsync()
-    {
-        Console.WriteLine("OnParametersSetAsync NavMenu start");
-        await base.OnParametersSetAsync();
-        Console.WriteLine("OnParametersSetAsync NavMenu end");
-    }
-    //
-    // =>
-    //     await ResultBox.Start
-    //         .DoResult(result => result.Log("NavMenu OnParametersSetAsync start"))
-    //         .Conveyor(_ => TokenService.UpdateRoleAsync())
-    //         .ScanResult(result =>
-    //         {
-    //             IsLoggedIn = result.IsSuccess;
-    //             IsSiteAdmin = result.IsSuccess && TokenService.IsSiteAdmin;
-    //         }).DoResult(_ => StateHasChanged())
-    //         .DoResult(result => result.Log("NavMenu OnParametersSetAsync end"));
+        // {
+        //     Console.WriteLine("OnParametersSetAsync NavMenu start");
+        //     await base.OnParametersSetAsync();
+        //     Console.WriteLine("OnParametersSetAsync NavMenu end");
+        // }
+        //
+        =>
+            await ResultBox.Start
+                .DoResult(result => result.Log("NavMenu OnParametersSetAsync start"))
+                .Conveyor(_ => TokenService.UpdateRoleAsync())
+                .ScanResult(result =>
+                {
+                    IsLoggedIn = result.IsSuccess;
+                    IsSiteAdmin = result.IsSuccess && TokenService.IsSiteAdmin;
+                }).DoResult(_ => StateHasChanged())
+                .DoResult(result => result.Log("NavMenu OnParametersSetAsync end"));
 
     // public Task StateHasChangedAsync() =>
     //     ResultBox.Start
