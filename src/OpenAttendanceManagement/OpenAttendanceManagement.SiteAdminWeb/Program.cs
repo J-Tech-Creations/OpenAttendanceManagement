@@ -2,6 +2,7 @@ using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.ServiceDefaults;
 using OpenAttendanceManagement.SiteAdminWeb.Apis;
 using OpenAttendanceManagement.SiteAdminWeb.Components;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.

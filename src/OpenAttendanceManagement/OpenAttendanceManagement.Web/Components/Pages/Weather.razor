@@ -19,8 +19,7 @@
     <p>
         <em>Loading...</em>
     </p>
-}
-else
+} else
 {
     <table class="table">
         <thead>
@@ -63,8 +62,6 @@ else
         await base.OnInitializedAsync();
     }
 
-    protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+    protected override Task OnParametersSetAsync() => TokenService.GetTokenAsync().Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
 
 }

@@ -1,4 +1,5 @@
 using Projects;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var pgsqlPassword = builder.AddParameter("postgresPassword", true);

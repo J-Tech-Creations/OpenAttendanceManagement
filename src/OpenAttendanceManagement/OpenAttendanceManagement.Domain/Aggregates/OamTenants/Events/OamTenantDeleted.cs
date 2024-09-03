@@ -1,4 +1,5 @@
 using Sekiban.Core.Events;
+
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Events;
 
 public record OamTenantDeleted : IEventPayload<OamTenant, OamTenantDeleted>

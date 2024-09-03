@@ -35,8 +35,7 @@ Welcome to your new app.
                 @if (tenant.TenantId == TenantInformation.Tenant.Value?.TenantId)
                 {
                     <span>Current</span>
-                }
-                else
+                } else
                 {
                     <button class="btn btn-info" @onclick="() => ChangeTenant(tenant)">Change to Current</button>
                 }
@@ -75,60 +74,23 @@ Welcome to your new app.
 
 
 @code {
-    ResultBox<MyUserInformationQuery.Result> MyUserInformation { get; set; } = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("Not loaded yet"));
-    ResultBox<string> Email { get; set; } = ResultBox<string>.FromException(new ApplicationException("Not loaded yet"));
+    private ResultBox<MyUserInformationQuery.Result> MyUserInformation { get; set; } = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("Not loaded yet"));
+    private ResultBox<string> Email { get; set; } = ResultBox<string>.FromException(new ApplicationException("Not loaded yet"));
 
-    protected override async Task OnParametersSetAsync()
-    {
-        var r = await
-            ResultBox.Start
-                .Log("Home OnParametersSetAsync start")
-                .Conveyor(TokenService.GetTokenAsync)
-                .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"))
-                .Conveyor(() => TenantApiClient.GetMyTenants())
-                .Conveyor(async () =>
+    protected override async Task OnParametersSetAsync() =>
+        await ResultBox
+            .Start
+            .Conveyor(TokenService.GetTokenAsync)
+            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"))
+            .Conveyor(() => TenantApiClient.GetMyTenants())
+            .Do(
+                async _ =>
                 {
-                    if (TenantInformation.Tenant.HasValue)
-                    {
-                        var r = await UserApiClient.GetMyTenantUser();
-                        r.Log("GetMyTenantUser finished - ");
-                        return r;
-                    }
+                    MyUserInformation = TenantInformation.Tenant.HasValue ? await UserApiClient.GetMyTenantUser() : ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("You don't have tenant invitation yet."));
+                })
+            .DoResultWrapTry(async _ => { Email = await TokenService.GetEmailAsync(); })
+            .DoWrapTry(StateHasChanged);
 
-                    return ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("You don't have tenant invitation yet."));
-                });
-        Console.WriteLine("MyUserInformation before set");
-        MyUserInformation = r;
-        Console.WriteLine("MyUserInformation after set");
-        Email = await TokenService.GetEmailAsync();
-        StateHasChanged();
-        Console.WriteLine("StateHasChanged called");
-    }
-    // await
-    //     ResultBox.Start
-    //         .Log("Home OnParametersSetAsync start")
-    //         .Conveyor(TokenService.GetTokenAsync)
-    //         .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"))
-    //         .Conveyor(() => TenantApiClient.GetMyTenants())
-    //         .DoWrapTry(async () =>
-    //         {
-    //             if (TenantInformation.Tenant.HasValue)
-    //             {
-    //                 var r = await UserApiClient.GetMyTenantUser();
-    //                 r.Log("GetMyTenantUser finished - ");
-    //                 await InvokeAsync(() => { MyUserInformation = r; });
-    //                 Console.WriteLine("MyUserInformation set");
-    //             }
-    //             else
-    //             {
-    //                 MyUserInformation = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("You don't have tenant invitation yet."));
-    //             }
-    //         })
-    //         .Log("Home OnParametersSetAsync 3")
-    //         .DoWrapTry(
-    //             async () => { await InvokeAsync(() => StateHasChanged()); })
-    //         .DoResult(_ => Console.WriteLine("all finished"))
-    //         .Log("Home OnParametersSetAsync end");
 
     private async Task ChangeTenant(BelongingTenantQuery.Record toChange)
     {

@@ -1,6 +1,6 @@
 @page "/login"
-@using System.Text.RegularExpressions
 @using OpenAttendanceManagement.Web.Apis
+@using System.Text.RegularExpressions
 @inject LoginClient LoginClient
 @inject TokenService TokenService
 @inject NavigationManager NavigationManager
@@ -103,18 +103,24 @@
 
     private async Task HandleLogin()
     {
-        errorMessage = await LoginClient.LoginAsync(
+        errorMessage = await LoginClient
+            .LoginAsync(
                 new LoginClient.LoginRequest
-                    { Email = loginForm.Email, Password = loginForm.Password, UseCookies = false },
+                {
+                    Email = loginForm.Email, Password = loginForm.Password, UseCookies = false
+                },
                 CancellationToken.None)
             .Match(success => string.Empty, error => error.Message);
-        await TokenService.UpdateRoleAsync().ScanResult(roleUpdated =>
-        {
-            if (roleUpdated.IsSuccess)
-            {
-                NavigationManager.NavigateTo("/", true);
-            }
-        });
+        await TokenService
+            .UpdateRoleAsync()
+            .ScanResult(
+                roleUpdated =>
+                {
+                    if (roleUpdated.IsSuccess)
+                    {
+                        NavigationManager.NavigateTo("/", true);
+                    }
+                });
     }
 
     private void OpenCreateUserModal()
@@ -162,8 +168,7 @@
         {
             createUserModel.AddError = null;
             await JsRuntime.InvokeVoidAsync("DisplayCreateUserModal", "hide");
-        }
-        else
+        } else
         {
             createUserModel.AddError = executedResult.GetException().Message;
         }

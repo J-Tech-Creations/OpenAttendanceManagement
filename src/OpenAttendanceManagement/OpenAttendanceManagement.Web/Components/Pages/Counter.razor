@@ -19,8 +19,8 @@
         currentCount++;
     }
 
-    protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+    protected override Task OnParametersSetAsync() => TokenService
+        .GetTokenAsync()
+        .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
 
 }

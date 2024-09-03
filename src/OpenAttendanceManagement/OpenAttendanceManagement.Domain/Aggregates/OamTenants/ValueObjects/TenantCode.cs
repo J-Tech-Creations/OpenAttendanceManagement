@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 
 public record TenantCode(

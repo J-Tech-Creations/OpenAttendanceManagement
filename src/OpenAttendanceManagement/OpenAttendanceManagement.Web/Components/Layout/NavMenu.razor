@@ -79,14 +79,17 @@
         // }
         //
         =>
-            await ResultBox.Start
+            await ResultBox
+                .Start
                 .DoResult(result => result.Log("NavMenu OnParametersSetAsync start"))
                 .Conveyor(_ => TokenService.UpdateRoleAsync())
-                .ScanResult(result =>
-                {
-                    IsLoggedIn = result.IsSuccess;
-                    IsSiteAdmin = result.IsSuccess && TokenService.IsSiteAdmin;
-                }).DoResult(_ => StateHasChanged())
+                .ScanResult(
+                    result =>
+                    {
+                        IsLoggedIn = result.IsSuccess;
+                        IsSiteAdmin = result.IsSuccess && TokenService.IsSiteAdmin;
+                    })
+                .DoResult(_ => StateHasChanged())
                 .DoResult(result => result.Log("NavMenu OnParametersSetAsync end"));
 
     // public Task StateHasChangedAsync() =>

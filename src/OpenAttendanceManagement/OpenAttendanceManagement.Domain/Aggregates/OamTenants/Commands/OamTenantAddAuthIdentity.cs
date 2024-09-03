@@ -4,6 +4,7 @@ using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
 using ResultBoxes;
 using Sekiban.Core.Command;
+
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 
 public record OamTenantAddAuthIdentity(
@@ -13,6 +14,7 @@ public record OamTenantAddAuthIdentity(
     : ITenantCommandWithHandler<OamTenant, OamTenantAddAuthIdentity>
 {
     public Guid GetAggregateId() => OamTenantId.Value;
+
     public static ResultBox<UnitValue> HandleCommand(
         OamTenantAddAuthIdentity command,
         ICommandContext<OamTenant> context) =>
@@ -22,5 +24,6 @@ public record OamTenantAddAuthIdentity(
                     ? new TenantAdminAlreadyExistsException(command.Email.Value + "はすでに存在しています。")
                     : ExceptionOrNone.None)
             .Conveyor(_ => context.AppendEvent(new OamTenantAuthIdentityEmailAdded(command.Email)));
+
     public string TenantId => TenantCode.Value;
 }
