@@ -4,7 +4,6 @@ using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
 using ResultBoxes;
 using Sekiban.Core.Command;
-
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 
 public record OamTenantRemoveAuthIdentity(
@@ -12,12 +11,11 @@ public record OamTenantRemoveAuthIdentity(
     AuthIdentityEmail Email,
     TenantCode TenantCode) : ITenantCommandWithHandler<OamTenant, OamTenantRemoveAuthIdentity>
 {
-    public Guid GetAggregateId() => OamTenantId.Value;
-
     public static ResultBox<UnitValue> HandleCommand(
         OamTenantRemoveAuthIdentity command,
         ICommandContext<OamTenant> context) =>
-        ResultBox.FromValue(context.GetState())
+        ResultBox
+            .FromValue(context.GetState())
             .Verify(
                 state => state.Payload.Admins.Any(x => x.Value == command.Email.Value)
                     ? ExceptionOrNone.None
@@ -25,5 +23,6 @@ public record OamTenantRemoveAuthIdentity(
             .Conveyor(
                 _ => context.AppendEvent(new OamTenantAuthIdentityEmailRemoved(command.Email)));
 
-    public string TenantId => TenantCode.Value;
+    public static Guid SpecifyAggregateId(OamTenantRemoveAuthIdentity command) => command.OamTenantId.Value;
+    public string GetTenantId() => TenantCode.Value;
 }

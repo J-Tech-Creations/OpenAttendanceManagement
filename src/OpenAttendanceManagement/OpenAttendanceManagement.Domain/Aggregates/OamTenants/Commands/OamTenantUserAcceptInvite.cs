@@ -10,8 +10,6 @@ namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 public record OamTenantUserAcceptInvite(TenantCode TenantCode, OamTenantId OamTenantId)
     : ITenantCommandWithHandlerForExistingAggregateAsync<OamTenant, OamTenantUserAcceptInvite>
 {
-    public Guid GetAggregateId() => OamTenantId.Value;
-
     public static Task<ResultBox<UnitValue>> HandleCommandAsync(
         OamTenantUserAcceptInvite command,
         ICommandContext<OamTenant> context) =>
@@ -33,5 +31,6 @@ public record OamTenantUserAcceptInvite(TenantCode TenantCode, OamTenantId OamTe
             .Conveyor(userEmail => context.AppendEvent(new OamTenantUserAcceptedToAddToTenant(userEmail)));
 
 
-    public string TenantId => TenantCode.Value;
+    public static Guid SpecifyAggregateId(OamTenantUserAcceptInvite command) => command.OamTenantId.Value;
+    public string GetTenantId() => TenantCode.Value;
 }

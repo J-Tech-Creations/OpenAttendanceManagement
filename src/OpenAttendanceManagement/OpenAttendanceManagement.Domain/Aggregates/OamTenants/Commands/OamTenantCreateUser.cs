@@ -4,7 +4,6 @@ using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
 using ResultBoxes;
 using Sekiban.Core.Command;
-
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 
 public record OamTenantCreateUser(
@@ -16,24 +15,31 @@ public record OamTenantCreateUser(
     OamDisplayName DisplayName)
     : ITenantCommandWithHandlerAsync<OamTenant, OamTenantCreateUser>
 {
-    public Guid GetAggregateId() => OamTenantId.Value;
-    public string TenantId => TenantCode.Value;
-
-    public static Task<ResultBox<UnitValue>> HandleCommandAsync(OamTenantCreateUser command,
+    public static Task<ResultBox<UnitValue>> HandleCommandAsync(
+        OamTenantCreateUser command,
         ICommandContext<OamTenant> context) =>
-        context.GetRequiredService<IOamUserManager>()
+        context
+            .GetRequiredService<IOamUserManager>()
             .Conveyor(manager => manager.GetExecutingUserEmail())
             .Remap(AuthIdentityEmail.FromString)
             .Verify(context.GetState().Payload.ValidateAdminUserEmail)
             .Verify(() => context.GetState().Payload.ValidateUserEmailShouldNotExists(command.Email))
-            .Conveyor(() =>
-                context.GetRequiredService<IOamUserManager>()
-                    .Conveyor(manager => manager.GetUserIdFromEmail(command.Email.Value))
-                    .Remap(AuthIdentityId.FromOptionalString)
-                    .Conveyor(authIdentityId =>
-                        context.AppendEvent(
-                            new OamTenantUserAddedToTenant(command.Email, authIdentityId, command.UserId,
-                                command.OamTenantId,
-                                command.UserName,
-                                command.DisplayName))));
+            .Conveyor(
+                () =>
+                    context
+                        .GetRequiredService<IOamUserManager>()
+                        .Conveyor(manager => manager.GetUserIdFromEmail(command.Email.Value))
+                        .Remap(AuthIdentityId.FromOptionalString)
+                        .Conveyor(
+                            authIdentityId =>
+                                context.AppendEvent(
+                                    new OamTenantUserAddedToTenant(
+                                        command.Email,
+                                        authIdentityId,
+                                        command.UserId,
+                                        command.OamTenantId,
+                                        command.UserName,
+                                        command.DisplayName))));
+    public static Guid SpecifyAggregateId(OamTenantCreateUser command) => command.OamTenantId.Value;
+    public string GetTenantId() => TenantCode.Value;
 }
