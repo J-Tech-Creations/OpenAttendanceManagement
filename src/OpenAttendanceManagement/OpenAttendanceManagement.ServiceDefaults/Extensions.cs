@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+
 namespace OpenAttendanceManagement.ServiceDefaults;
 
 // Adds common .NET Aspire services: service discovery, resilience, health checks, and OpenTelemetry.
@@ -73,10 +74,7 @@ public static class Extensions
         var useOtlpExporter =
             !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
 
-        if (useOtlpExporter)
-        {
-            builder.Services.AddOpenTelemetry().UseOtlpExporter();
-        }
+        if (useOtlpExporter) builder.Services.AddOpenTelemetry().UseOtlpExporter();
 
         // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
         //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))

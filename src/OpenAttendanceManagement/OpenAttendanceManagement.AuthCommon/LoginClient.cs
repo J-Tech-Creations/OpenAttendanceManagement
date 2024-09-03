@@ -16,7 +16,8 @@ public class LoginClient(HttpClient httpClient, TokenService tokenService)
                     async response => ResultBox.CheckNull(
                         await response.Content.ReadFromJsonAsync<LoginResponse>(cancellationToken),
                         new LoginException("ログインに失敗しました。")))
-                .Do(response => tokenService.SaveTokenAsync(response.AccessToken, request.Email ?? string.Empty));
+                .Do(response =>
+                    tokenService.SaveTokenAndEmailAsync(response.AccessToken, request.Email ?? string.Empty));
 
     public record LoginRequest
     {

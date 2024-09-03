@@ -48,18 +48,19 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Api.GetWeatherAsync();
+        // forecasts = await Api.GetWeatherAsync();
+        await base.OnInitializedAsync();
     }
 
-    protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAndRoleAsync()
-            .ScanResult(
-                result =>
-                {
-                    if (result.IsSuccess == false || !TokenService.IsSiteAdmin)
-                    {
-                        NavigationManager.NavigateTo("/login");
-                    }
-                });
+    // protected override Task OnParametersSetAsync()
+    //     => TokenService.UpdateRoleAsync()
+    //         .ScanResult(
+    //             result =>
+    //             {
+    //                 if (result.IsSuccess == false || !TokenService.IsSiteAdmin)
+    //                 {
+    //                     NavigationManager.NavigateTo("/login");
+    //                 }
+    //             });
 
 }

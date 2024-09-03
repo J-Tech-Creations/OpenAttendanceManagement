@@ -29,8 +29,7 @@
         <em>Loading...</em>
         <span>@users.GetException().Message</span>
     </p>
-}
-else
+} else
 {
     <table class="table">
         <thead>
@@ -113,16 +112,14 @@ else
     protected override async Task OnInitializedAsync()
     {
         users = await UserApi.GetTenantUsers();
-        forecasts = await WeatherApi.GetWeatherAsync();
     }
 
 
-    protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAndRoleAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+    protected override Task OnParametersSetAsync() => TokenService
+        .UpdateRoleAsync()
+        .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
 
     #region add tenant user
-
     private class TenantUserCreateModel
     {
         public string UserEmail { get; set; } = string.Empty;
@@ -144,14 +141,7 @@ else
     {
         await Task.CompletedTask;
         Console.WriteLine(createUserModel.UserEmail);
-        var result = await TenantApi.AddUserToTenant(new OamTenantCreateUser(
-            new OamTenantId(TenantInformation.Tenant.GetValue().TenantId),
-            AuthIdentityEmail.FromString(createUserModel.UserEmail),
-            new TenantCode(TenantInformation.Tenant.GetValue().TenantCode),
-            new OamTenantUserId(Guid.NewGuid()),
-            new OamUserName(createUserModel.FirstName, createUserModel.LastName),
-            OamDisplayName.FromString(createUserModel.DisplayName))
-        );
+        var result = await TenantApi.AddUserToTenant(new OamTenantCreateUser(new OamTenantId(TenantInformation.Tenant.GetValue().TenantId), AuthIdentityEmail.FromString(createUserModel.UserEmail), new TenantCode(TenantInformation.Tenant.GetValue().TenantCode), new OamTenantUserId(Guid.NewGuid()), new OamUserName(createUserModel.FirstName, createUserModel.LastName), OamDisplayName.FromString(createUserModel.DisplayName)));
         if (result.IsSuccess)
         {
             users = await UserApi.GetTenantUsers();
@@ -159,13 +149,11 @@ else
             // addModel.TenantCode = string.Empty;
             // addModel.TenantName = string.Empty;
             await JsRuntime.InvokeVoidAsync("DisplayCreateUserModal", "hide");
-        }
-        else
+        } else
         {
             createUserModel.AddError = "登録に失敗しました。コードの重複などにご注意ください。";
         }
     }
-
     #endregion
 
 }

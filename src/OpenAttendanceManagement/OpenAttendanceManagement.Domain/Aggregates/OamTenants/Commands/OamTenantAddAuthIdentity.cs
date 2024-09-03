@@ -12,15 +12,17 @@ public record OamTenantAddAuthIdentity(
     TenantCode TenantCode)
     : ITenantCommandWithHandler<OamTenant, OamTenantAddAuthIdentity>
 {
-    public Guid GetAggregateId() => OamTenantId.Value;
     public static ResultBox<UnitValue> HandleCommand(
         OamTenantAddAuthIdentity command,
         ICommandContext<OamTenant> context) =>
-        ResultBox.Start
+        ResultBox
+            .Start
             .Verify(
                 _ => context.GetState().Payload.Admins.Any(x => x.Value == command.Email.Value)
                     ? new TenantAdminAlreadyExistsException(command.Email.Value + "はすでに存在しています。")
                     : ExceptionOrNone.None)
             .Conveyor(_ => context.AppendEvent(new OamTenantAuthIdentityEmailAdded(command.Email)));
-    public string TenantId => TenantCode.Value;
+
+    public static Guid SpecifyAggregateId(OamTenantAddAuthIdentity command) => command.OamTenantId.Value;
+    public string GetTenantId() => TenantCode.Value;
 }

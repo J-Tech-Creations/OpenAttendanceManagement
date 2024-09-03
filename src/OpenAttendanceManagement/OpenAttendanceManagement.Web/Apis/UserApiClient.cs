@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Net.Http.Headers;
 using System.Web;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.Common;
@@ -14,10 +13,7 @@ public class UserApiClient(HttpClient httpClient, TokenService tokenService, Ten
 {
     public Task<ResultBox<ListQueryResult<OamTenantUsersQuery.Record>>> GetTenantUsers(
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAndRoleAsync()
-            .Do(
-                success => httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", success))
+        tokenService.SetTokenToHeader(httpClient)
             .Conveyor(() => ResultBox.CheckNull(httpClient.BaseAddress))
             .Conveyor(baseAddress =>
             {
@@ -39,13 +35,12 @@ public class UserApiClient(HttpClient httpClient, TokenService tokenService, Ten
                     response.GetResultFromJsonAsync<ListQueryResult<OamTenantUsersQuery.Record>>(cancellationToken));
 
 
-    public Task<ResultBox<MyUserInformationQuery.Result>> GetMyTenantUser(
+    public async Task<ResultBox<MyUserInformationQuery.Result>> GetMyTenantUser(
         CancellationToken cancellationToken = default) =>
-        tokenService.GetTokenAndRoleAsync()
-            .Do(
-                success => httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", success))
+        await tokenService.SetTokenToHeader(httpClient)
+            .Log("GetMyTenantUser start")
             .Conveyor(() => ResultBox.CheckNull(httpClient.BaseAddress))
+            .Log("GetMyTenantUser 0")
             .Conveyor(baseAddress =>
             {
                 var uriBuilder = new UriBuilder(baseAddress.Scheme, baseAddress.Host, baseAddress.Port,
@@ -55,15 +50,20 @@ public class UserApiClient(HttpClient httpClient, TokenService tokenService, Ten
                 uriBuilder.Query = query.ToString();
                 return ResultBox.FromValue(uriBuilder.Uri.ToString());
             })
+            .Log("GetMyTenantUser 1")
             .Conveyor(
                 uri => ResultBox.WrapTry(() =>
                     httpClient.GetAsync(
                         uri,
                         cancellationToken)))
+            .Log("GetMyTenantUser 2")
             .Do(async response => Debug.Print(await response.Content.ReadAsStringAsync()))
+            .Log("GetMyTenantUser 3")
+            .Do(response => Console.WriteLine(response.StatusCode.ToString()))
             .Conveyor(
                 response =>
-                    response.GetResultFromJsonAsync<MyUserInformationQuery.Result>(cancellationToken));
+                    response.GetResultFromJsonAsync<MyUserInformationQuery.Result>(cancellationToken))
+            .Log("GetMyTenantUser end");
 
     public Task<ResultBox<UnitValue>> CreateUser(
         CreateUserModel command,

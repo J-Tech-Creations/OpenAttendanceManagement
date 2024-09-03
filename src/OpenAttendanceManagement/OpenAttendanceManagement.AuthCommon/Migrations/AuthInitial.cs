@@ -2,6 +2,7 @@
 
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+
 namespace OpenAttendanceManagement.AuthCommon.Migrations;
 
 /// <inheritdoc />
@@ -25,10 +26,7 @@ public partial class AuthInitial : Migration
                     nullable: true),
                 ConcurrencyStamp = table.Column<string>("text", nullable: true)
             },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-            });
+            constraints: table => { table.PrimaryKey("PK_AspNetRoles", x => x.Id); });
 
         migrationBuilder.CreateTable(
             "AspNetUsers",
@@ -64,10 +62,7 @@ public partial class AuthInitial : Migration
                 LockoutEnabled = table.Column<bool>("boolean", nullable: false),
                 AccessFailedCount = table.Column<int>("integer", nullable: false)
             },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-            });
+            constraints: table => { table.PrimaryKey("PK_AspNetUsers", x => x.Id); });
 
         migrationBuilder.CreateTable(
             "AspNetRoleClaims",

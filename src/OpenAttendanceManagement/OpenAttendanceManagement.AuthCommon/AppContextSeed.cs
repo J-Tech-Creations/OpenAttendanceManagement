@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using ResultBoxes;
+
 namespace OpenAttendanceManagement.AuthCommon;
 
 public static class AppContextSeed

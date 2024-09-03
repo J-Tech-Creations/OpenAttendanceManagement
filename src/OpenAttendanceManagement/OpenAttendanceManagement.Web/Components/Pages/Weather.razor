@@ -19,8 +19,7 @@
     <p>
         <em>Loading...</em>
     </p>
-}
-else
+} else
 {
     <table class="table">
         <thead>
@@ -50,11 +49,19 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await WeatherApi.GetWeatherAsync();
+        try
+        {
+            forecasts = await WeatherApi.GetWeatherAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        await base.OnInitializedAsync();
     }
 
-    protected override Task OnParametersSetAsync()
-        => TokenService.GetTokenAndRoleAsync()
-            .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
+    protected override Task OnParametersSetAsync() => TokenService.GetTokenAsync().Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
 
 }

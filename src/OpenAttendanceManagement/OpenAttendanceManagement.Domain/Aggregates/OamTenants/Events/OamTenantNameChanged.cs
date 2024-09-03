@@ -1,5 +1,6 @@
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 using Sekiban.Core.Events;
+
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Events;
 
 public record OamTenantNameChanged(TenantName TenantName)
