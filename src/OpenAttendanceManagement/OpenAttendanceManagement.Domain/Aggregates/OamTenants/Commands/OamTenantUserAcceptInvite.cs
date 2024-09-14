@@ -18,16 +18,11 @@ public record OamTenantUserAcceptInvite(TenantCode TenantCode, OamTenantId OamTe
             .Conveyor(manager => manager.GetExecutingUserEmail())
             .Remap(AuthIdentityEmail.FromString)
             .Verify(
-                userEmail =>
-                    context
-                        .GetState()
-                        .Payload
-                        .Users
-                        .Any(
-                            u => u.AuthIdentityEmail.NormalizedEquals(userEmail) &&
-                                u is OamUnconfirmedTenantUserInformation { AuthIdentityId.HasValue: true })
-                        ? ExceptionOrNone.None
-                        : new TenantUserNotAddedToTenantYetException(userEmail.Value))
+                userEmail => context.GetState().Payload.Users
+                    .Any(u => u.AuthIdentityEmail.NormalizedEquals(userEmail) &&
+                       u is OamUnconfirmedTenantUserInformation { AuthIdentityId.HasValue: true })
+                     ? ExceptionOrNone.None
+                       : new TenantUserNotAddedToTenantYetException(userEmail.Value))
             .Conveyor(userEmail => context.AppendEvent(new OamTenantUserAcceptedToAddToTenant(userEmail)));
 
 

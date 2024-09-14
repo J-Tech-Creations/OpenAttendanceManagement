@@ -1,10 +1,9 @@
-using System.Collections.Immutable;
 using OpenAttendanceManagement.Common.Exceptions;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
 using ResultBoxes;
 using Sekiban.Core.Aggregate;
-
+using System.Collections.Immutable;
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants;
 
 public record OamTenant(
@@ -12,7 +11,7 @@ public record OamTenant(
     TenantName TenantName,
     ImmutableList<IOamTenantUserInformation> Users,
     ImmutableList<AuthIdentityEmail> Admins,
-    bool IsDeleted) : IDeletableAggregatePayload<OamTenant>
+    bool IsDeleted) : ITenantDeletableAggregatePayload<OamTenant>
 {
     public static OamTenant CreateInitialPayload(OamTenant? _) =>
         new(
