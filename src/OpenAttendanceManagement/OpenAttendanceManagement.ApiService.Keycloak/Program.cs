@@ -5,27 +5,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-Console.WriteLine(builder.Configuration["services:keycloak:http:0"]);
-Console.WriteLine(builder.Configuration["services:keycloak:clientSecret"]);
-// builder
-//     .Services
-//     .AddKeycloakWebApiAuthentication(
-//         option =>
-//         {
-//             option.AuthServerUrl = builder.Configuration["services:keycloak:http:0"];
-//             option.Realm = "oamtenant";
-//             option.SslRequired = "none";
-//             option.VerifyTokenAudience = false;
-//             option.Resource = "oamclient";
-//             option.Credentials = new KeycloakClientInstallationCredentials
-//                 { Secret = builder.Configuration["services:keycloak:clientSecret"] ?? string.Empty };
-//         },
-//         option =>
-//         {
-//             option.Audience = "oamclient";
-//             option.RequireHttpsMetadata = false;
-//         });
-
 builder
     .Services
     .AddAuthentication()
