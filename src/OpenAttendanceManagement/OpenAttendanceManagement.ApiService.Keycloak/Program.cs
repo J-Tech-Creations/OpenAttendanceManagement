@@ -1,5 +1,3 @@
-using Keycloak.AuthServices.Authentication;
-using Keycloak.AuthServices.Common;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -9,24 +7,39 @@ builder.Services.AddSwaggerGen();
 
 Console.WriteLine(builder.Configuration["services:keycloak:http:0"]);
 Console.WriteLine(builder.Configuration["services:keycloak:clientSecret"]);
+// builder
+//     .Services
+//     .AddKeycloakWebApiAuthentication(
+//         option =>
+//         {
+//             option.AuthServerUrl = builder.Configuration["services:keycloak:http:0"];
+//             option.Realm = "oamtenant";
+//             option.SslRequired = "none";
+//             option.VerifyTokenAudience = false;
+//             option.Resource = "oamclient";
+//             option.Credentials = new KeycloakClientInstallationCredentials
+//                 { Secret = builder.Configuration["services:keycloak:clientSecret"] ?? string.Empty };
+//         },
+//         option =>
+//         {
+//             option.Audience = "oamclient";
+//             option.RequireHttpsMetadata = false;
+//         });
+
 builder
     .Services
-    .AddKeycloakWebApiAuthentication(
-        option =>
+    .AddAuthentication()
+    .AddKeycloakJwtBearer(
+        "keycloak",
+        "oamtenant",
+        options =>
         {
-            option.AuthServerUrl = builder.Configuration["services:keycloak:http:0"];
-            option.Realm = "oamtenant";
-            option.SslRequired = "none";
-            option.VerifyTokenAudience = false;
-            option.Resource = "oamclient";
-            option.Credentials = new KeycloakClientInstallationCredentials
-                { Secret = builder.Configuration["services:keycloak:clientSecret"] ?? string.Empty };
-        },
-        option =>
-        {
-            option.Audience = "oamclient";
-            option.RequireHttpsMetadata = false;
+            options.Authority = "http://localhost:18080/realms/oamtenant";
+            options.Audience = "oamclient";
+            options.RequireHttpsMetadata = false;
+            options.TokenValidationParameters.ValidateAudience = false;
         });
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
