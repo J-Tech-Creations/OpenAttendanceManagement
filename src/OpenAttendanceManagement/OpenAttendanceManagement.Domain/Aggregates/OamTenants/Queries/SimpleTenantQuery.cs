@@ -1,20 +1,21 @@
 using ResultBoxes;
 using Sekiban.Core.Aggregate;
 using Sekiban.Core.Query.QueryModel;
-
 namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries;
 
 public record SimpleTenantQuery(string NameFilter, int? PageSize, int? PageNumber)
-    : INextAggregateListQueryWithPaging<OamTenant, SimpleTenantQuery.Record>
+    : INextAggregateListQueryWithPaging<OamTenant, SimpleTenantQuery, SimpleTenantQuery.Record>
 {
-    public ResultBox<IEnumerable<Record>> HandleFilter(
+    public static ResultBox<IEnumerable<Record>> HandleFilter(
         IEnumerable<AggregateState<OamTenant>> list,
+        SimpleTenantQuery query,
         IQueryContext context) =>
         ResultBox.FromValue(
-            list.Where(
-                    m => string.IsNullOrWhiteSpace(NameFilter) ||
-                         m.Payload.TenantName.Value.Contains(NameFilter) ||
-                         m.Payload.TenantCode.Value.Contains(NameFilter))
+            list
+                .Where(
+                    m => string.IsNullOrWhiteSpace(query.NameFilter) ||
+                        m.Payload.TenantName.Value.Contains(query.NameFilter) ||
+                        m.Payload.TenantCode.Value.Contains(query.NameFilter))
                 .Select(
                     m => new Record(
                         m.AggregateId,
@@ -22,10 +23,12 @@ public record SimpleTenantQuery(string NameFilter, int? PageSize, int? PageNumbe
                         m.Payload.TenantName.Value,
                         m.Payload.Admins.Select(x => x.Value).ToList())));
 
-    public ResultBox<IEnumerable<Record>> HandleSort(
+    public static ResultBox<IEnumerable<Record>> HandleSort(
         IEnumerable<Record> filteredList,
-        IQueryContext context) => ResultBox.FromValue(
-        filteredList.OrderBy(m => m.TenantCode).ThenBy(m => m.TenantName).AsEnumerable());
+        SimpleTenantQuery query,
+        IQueryContext context)
+        => ResultBox.FromValue(
+            filteredList.OrderBy(m => m.TenantCode).ThenBy(m => m.TenantName).AsEnumerable());
 
     public record Record(
         Guid TenantId,
