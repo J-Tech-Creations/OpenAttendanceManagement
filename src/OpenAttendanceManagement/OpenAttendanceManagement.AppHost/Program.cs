@@ -17,6 +17,16 @@ var azureStorage = builder
     .RunAsEmulator(configure => configure.WithDataVolume());
 var blob = azureStorage.AddBlobs("sekibanBlob");
 
+// please add user secrets for the following values
+//   "Parameters:keycloak-password": "your_password_here"
+var keycloak = builder
+    .AddKeycloak("keycloak", 18080)
+    .WithDataVolume();
+
+var apiServiceKeycloak = builder
+    .AddProject<OpenAttendanceManagement_ApiService_Keycloak>("apiservicekeycloak")
+    .WithReference(keycloak);
+
 var apiService = builder
     .AddProject<OpenAttendanceManagement_ApiService>("apiservice")
     .WithReference(authDb)
