@@ -23,8 +23,15 @@ var keycloak = builder
     .AddKeycloak("keycloak", 18080)
     .WithDataVolume();
 
+
 var apiServiceKeycloak = builder
     .AddProject<OpenAttendanceManagement_ApiService_Keycloak>("apiservicekeycloak")
+    .WithReference(keycloak);
+
+var webKeycloak = builder
+    .AddProject<OpenAttendanceManagement_Web_Keycloak>("keycloakweb")
+    .WithExternalHttpEndpoints()
+    .WithReference(apiServiceKeycloak)
     .WithReference(keycloak);
 
 var apiService = builder
