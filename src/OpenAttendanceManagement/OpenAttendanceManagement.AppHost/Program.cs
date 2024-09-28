@@ -34,6 +34,13 @@ var webKeycloak = builder
     .WithReference(apiServiceKeycloak)
     .WithReference(keycloak);
 
+var webKeycloakNext = builder
+    .AddNpmApp("keycloak-next", "../OpenAttendanceManagement.Web.Keycloak.Next", "dev")
+    .WithHttpEndpoint(env: "PORT", port: 3000)
+    .WithExternalHttpEndpoints()
+    .WithReference(apiServiceKeycloak);
+
+
 var apiService = builder
     .AddProject<OpenAttendanceManagement_ApiService>("apiservice")
     .WithReference(authDb)
