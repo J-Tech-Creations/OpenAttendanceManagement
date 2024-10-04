@@ -1,0 +1,6 @@
+@OpenAttendanceManagement.SiteAdminApi.Keycloak_HostAddress = http://localhost:5039
+
+GET {{OpenAttendanceManagement.SiteAdminApi.Keycloak_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

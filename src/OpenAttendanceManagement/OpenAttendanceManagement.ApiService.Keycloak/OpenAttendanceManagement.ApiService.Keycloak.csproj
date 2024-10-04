@@ -13,4 +13,8 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\OpenAttendanceManagement.ServiceDefaults\OpenAttendanceManagement.ServiceDefaults.csproj"/>
+    </ItemGroup>
+
 </Project>
