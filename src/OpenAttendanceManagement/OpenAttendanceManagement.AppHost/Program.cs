@@ -29,7 +29,9 @@ var apiServiceKeycloak = builder
     .WithReference(keycloak);
 var apiServiceAdminKeycloak = builder
     .AddProject<OpenAttendanceManagement_SiteAdminApi_Keycloak>("siteadminapiservicekeycloak")
-    .WithReference(keycloak);
+    .WithReference(keycloak)
+    .WithReference(eventDb)
+    .WithReference(blob);
 
 var webKeycloak = builder
     .AddProject<OpenAttendanceManagement_Web_Keycloak>("keycloakweb")

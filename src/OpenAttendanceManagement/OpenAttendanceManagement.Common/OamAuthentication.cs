@@ -1,7 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using ResultBoxes;
-
+using System.Security.Claims;
 namespace OpenAttendanceManagement.Common;
 
 public class OamAuthentication(
@@ -9,7 +8,9 @@ public class OamAuthentication(
     IHttpContextAccessor contextAccessor) : IOamAuthentication
 {
     public Task<ResultBox<OatLoginUser>> GetOatLoginUser()
-        => ResultBox.Start.Conveyor(
+        => ResultBox
+            .Start
+            .Conveyor(
                 _ => ResultBox.CheckNullWrapTry(() => contextAccessor.HttpContext?.User))
             .Conveyor(
                 user => ResultBox.CheckNull(
@@ -22,4 +23,18 @@ public class OamAuthentication(
                 (user, roles) => user.Email is not null
                     ? ResultBox.FromValue(new OatLoginUser(user.Email, roles.ToList()))
                     : new ApplicationException("User not found."));
+}
+public class OamAuthenticationKeycloak(IHttpContextAccessor contextAccessor) : IOamAuthentication
+{
+    public Task<ResultBox<OatLoginUser>> GetOatLoginUser()
+        => ResultBox
+            .Start
+            .Conveyor(
+                _ => ResultBox.CheckNullWrapTry(() => contextAccessor.HttpContext?.User))
+            .Conveyor(
+                user => ResultBox.CheckNull(
+                    user.Claims.FirstOrDefault(
+                        c => c.Type == ClaimTypes.NameIdentifier)))
+            .Conveyor(_ => ResultBox.FromValue(new OatLoginUser("keycloak", new List<string> { "keycloak" })))
+            .ToTask();
 }

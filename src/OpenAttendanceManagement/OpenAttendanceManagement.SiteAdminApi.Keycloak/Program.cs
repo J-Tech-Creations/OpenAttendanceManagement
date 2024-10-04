@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.Common;
@@ -69,11 +68,11 @@ builder.AddSekibanPostgresDbWithAzureBlobStorage();
 builder.AddSekibanPostgresDbWithAzureBlobStorage();
 builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
     definition => definition.AuthorizationDefinitions =
-        new AuthorizeDefinitionCollectionWithUserManager<IdentityUser>(
+        new AuthorizeDefinitionCollectionWithKeycloak(
             new AllowOnlyWithRolesAndDenyIfNot<AllMethod, OamRoles>(OamRoles.SiteAdmin)));
 builder.Services.AddSwaggerGen(options => options.ConfigureForSekibanWeb());
 
-builder.Services.AddTransient<IOamAuthentication, OamAuthentication>();
+builder.Services.AddTransient<IOamAuthentication, OamAuthenticationKeycloak>();
 
 var app = builder.Build();
 
