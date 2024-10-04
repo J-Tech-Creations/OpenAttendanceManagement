@@ -12,6 +12,7 @@
     <ItemGroup>
         <ProjectReference Include="..\OpenAttendanceManagement.ApiService.Keycloak\OpenAttendanceManagement.ApiService.Keycloak.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.ApiService\OpenAttendanceManagement.ApiService.csproj"/>
+        <ProjectReference Include="..\OpenAttendanceManagement.SiteAdminApi.Keycloak\OpenAttendanceManagement.SiteAdminApi.Keycloak.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.SiteAdminApi\OpenAttendanceManagement.SiteAdminApi.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.SiteAdminWeb\OpenAttendanceManagement.SiteAdminWeb.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.Web.Keycloak\OpenAttendanceManagement.Web.Keycloak.csproj"/>

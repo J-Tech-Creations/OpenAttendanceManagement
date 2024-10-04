@@ -69,7 +69,7 @@ builder.Services.AddSwaggerGen(options => options.ConfigureForSekibanWeb());
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IOamUserManager, OamUserManager>();
 
-builder.Services.AddTransient<IOatAuthentication, OatAuthentication>();
+builder.Services.AddTransient<IOamAuthentication, OamAuthentication>();
 
 var app = builder.Build();
 

@@ -1,6 +1,4 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.Common;
@@ -12,15 +10,18 @@ using Sekiban.Web.Authorizations;
 using Sekiban.Web.Authorizations.Definitions;
 using Sekiban.Web.Dependency;
 using Sekiban.Web.OpenApi.Extensions;
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add service defaults & Aspire components.
 builder.AddServiceDefaults();
 
 builder.Services.AddControllers();
+
+// Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddSwaggerGen(
     c =>
     {
@@ -47,13 +48,21 @@ builder.Services.AddSwaggerGen(
             });
     });
 
+builder
+    .Services
+    .AddAuthentication()
+    .AddKeycloakJwtBearer(
+        "keycloak",
+        "oamtenant",
+        options =>
+        {
+            options.Authority = "http://localhost:18080/realms/oamtenant";
+            options.Audience = "oamclient";
+            options.RequireHttpsMetadata = false;
+            options.TokenValidationParameters.ValidateAudience = false;
+        });
+
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication();
-builder.AddNpgsqlDbContext<AuthDbContext>("authdb");
-builder.Services.AddScoped<UserManager<IdentityUser>>();
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<AuthDbContext>();
 
 builder.AddSekibanWithDependency<OamDomainDependency>();
 builder.AddSekibanPostgresDbWithAzureBlobStorage();
@@ -78,42 +87,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapGet(
-        "/user/roles",
-        async (
-            UserManager<IdentityUser> userManager,
-            HttpContext httpContext,
-            AuthDbContext authDbContext) =>
-        {
-            var userIdClaim =
-                httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) return Results.NotFound("User not found.");
 
-            var user = await userManager.FindByIdAsync(userIdClaim.Value);
-            if (user == null) return Results.NotFound($"User with ID {userIdClaim.Value} not found.");
-            var roles = authDbContext.UserRoles.Where(m => m.UserId == user.Id)
-                .Select(m => m.RoleId)
-                .Join(
-                    authDbContext.Roles,
-                    roleId => roleId,
-                    role => role.Id,
-                    (roleId, role) => role.Name)
-                .Where(m => m != null)
-                .ToList();
-            return Results.Ok(roles);
-        })
-    .WithName("GetUserRoles")
-    .WithOpenApi()
-    .RequireAuthorization();
 
 app.MapControllers();
-app.MapIdentityApi<IdentityUser>();
-
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-    dbContext.Database.Migrate();
-    AppContextSeed.Seed(dbContext);
-}
 
 app.Run();

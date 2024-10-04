@@ -2,7 +2,7 @@ using ResultBoxes;
 
 namespace OpenAttendanceManagement.Common;
 
-public interface IOatAuthentication
+public interface IOamAuthentication
 {
     public Task<ResultBox<OatLoginUser>> GetOatLoginUser();
 }

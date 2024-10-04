@@ -4,9 +4,9 @@ using ResultBoxes;
 
 namespace OpenAttendanceManagement.Common;
 
-public class OatAuthentication(
+public class OamAuthentication(
     UserManager<IdentityUser> userManager,
-    IHttpContextAccessor contextAccessor) : IOatAuthentication
+    IHttpContextAccessor contextAccessor) : IOamAuthentication
 {
     public Task<ResultBox<OatLoginUser>> GetOatLoginUser()
         => ResultBox.Start.Conveyor(

@@ -16,7 +16,7 @@ public record ChangeOamTenantName(
         ChangeOamTenantName command,
         ICommandContext<OamTenant> context) =>
         context
-            .GetRequiredService<IOatAuthentication>()
+            .GetRequiredService<IOamAuthentication>()
             .Conveyor(oatAuth => oatAuth.GetOatLoginUser())
             .Verify(
                 login => login.Roles.Contains(OamRoles.SiteAdmin.ToString())

@@ -1,4 +1,8 @@
+using OpenAttendanceManagement.ServiceDefaults;
 var builder = WebApplication.CreateBuilder(args);
+
+// Add service defaults & Aspire components.
+builder.AddServiceDefaults();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

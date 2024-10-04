@@ -4,16 +4,18 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <UserSecretsId>00f94688-826a-4224-93d9-ea74103949cb</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Keycloak.Authentication" Version="8.2.0-preview.1.24428.5"/>
+        <PackageReference Include="Aspire.Keycloak.Authentication" Version="8.2.1-preview.1.24473.4"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+        <PackageReference Include="Sekiban.Infrastructure.Postgres" Version="0.22.0-preview4"/>
+        <PackageReference Include="Sekiban.Web" Version="0.22.0-preview4"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1"/>
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\OpenAttendanceManagement.Domain\OpenAttendanceManagement.Domain.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.ServiceDefaults\OpenAttendanceManagement.ServiceDefaults.csproj"/>
     </ItemGroup>
 
