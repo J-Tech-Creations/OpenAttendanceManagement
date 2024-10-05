@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-namespace OpenAttendanceManagement.Web.Keycloak;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+namespace OpenAttendanceManagement.AuthCommon;
 
 public static class LoginLogoutEndpointRouteBuilderExtensions
 {

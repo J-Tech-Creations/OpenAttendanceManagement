@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
-namespace OpenAttendanceManagement.Web.Keycloak;
+namespace OpenAttendanceManagement.AuthCommon;
 
 public class AuthorizationHandler(IHttpContextAccessor httpContextAccessor) : DelegatingHandler
 {
@@ -12,6 +14,15 @@ public class AuthorizationHandler(IHttpContextAccessor httpContextAccessor) : De
             throw new InvalidOperationException("No HttpContext available from the IHttpContextAccessor!");
 
         var accessToken = await httpContext.GetTokenAsync("access_token");
+
+        // jwt token から Roles を取得する
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(accessToken);
+        var roles = jwtToken
+            .Claims
+            .Where(claim => claim.Type == "roles")
+            .Select(claim => claim.Value)
+            .ToList();
 
         if (!string.IsNullOrEmpty(accessToken))
         {

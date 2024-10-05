@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\OpenAttendanceManagement.AuthCommon\OpenAttendanceManagement.AuthCommon.csproj"/>
         <ProjectReference Include="..\OpenAttendanceManagement.ServiceDefaults\OpenAttendanceManagement.ServiceDefaults.csproj"/>
     </ItemGroup>
 

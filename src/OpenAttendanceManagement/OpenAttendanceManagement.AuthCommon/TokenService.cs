@@ -1,9 +1,8 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using OpenAttendanceManagement.Common.Exceptions;
 using ResultBoxes;
-
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 namespace OpenAttendanceManagement.AuthCommon;
 
 public class TokenService(
@@ -16,7 +15,8 @@ public class TokenService(
     public List<string> Roles { get; private set; } = new();
 
     public Task<ResultBox<string>> GetTokenAsync() =>
-        ResultBox.WrapTry(
+        ResultBox
+            .WrapTry(
                 async () => await protectedSessionStorage.GetAsync<string>(TokenKey))
             .Conveyor(
                 result => result.Success
@@ -42,7 +42,8 @@ public class TokenService(
             });
 
     public Task<ResultBox<string>> GetEmailAsync() =>
-        ResultBox.WrapTry(
+        ResultBox
+            .WrapTry(
                 async () => await protectedSessionStorage.GetAsync<string>(EmailKey))
             .Conveyor(
                 result => result.Success
@@ -62,8 +63,9 @@ public class TokenService(
 
     public Task<ResultBox<UnitValue>> SetTokenToHeader(HttpClient httpClient)
         => GetTokenAsync()
-            .Do(token =>
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token))
+            .Do(
+                token =>
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token))
             .Conveyor(() => ResultBox.UnitValue);
 
     public Task<ResultBox<UnitValue>> SaveTokenAndEmailAsync(string token, string email) =>
@@ -74,7 +76,8 @@ public class TokenService(
     public Task<ResultBox<UnitValue>> UpdateRoleAsync()
         => SetTokenToHeader(httpClient)
             .Do(
-                _ => ResultBox.WrapTry(
+                _ => ResultBox
+                    .WrapTry(
                         async () => new OptionalValue<List<string>>(
                             await httpClient.GetFromJsonAsync<List<string>>(
                                 "/user/roles")))
