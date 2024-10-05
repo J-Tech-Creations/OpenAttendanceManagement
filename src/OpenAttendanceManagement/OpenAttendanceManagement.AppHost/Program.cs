@@ -33,6 +33,12 @@ var apiServiceAdminKeycloak = builder
     .WithReference(eventDb)
     .WithReference(blob);
 
+var webAdminKeycloak = builder
+    .AddProject<OpenAttendanceManagement_SiteAdminWeb_Keycloak>("siteadminwebkeycloak")
+    .WithExternalHttpEndpoints()
+    .WithReference(keycloak)
+    .WithReference(apiServiceAdminKeycloak);
+
 var webKeycloak = builder
     .AddProject<OpenAttendanceManagement_Web_Keycloak>("keycloakweb")
     .WithExternalHttpEndpoints()

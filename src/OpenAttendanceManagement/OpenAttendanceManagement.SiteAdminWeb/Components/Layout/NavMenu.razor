@@ -82,7 +82,8 @@
     //     IsSiteAdmin = TokenService.IsSiteAdmin;
     // });
 
-    public Task StateHasChangedAsync() => TokenService.GetTokenAsync()
+    public Task StateHasChangedAsync() => TokenService
+        .GetTokenAsync()
         .ScanResult(result => IsLoggedIn = result.IsSuccess)
         .DoResult(
             _ => { StateHasChanged(); });

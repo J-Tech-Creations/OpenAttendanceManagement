@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.ServiceDefaults;
-using OpenAttendanceManagement.Web.Keycloak;
-using OpenAttendanceManagement.Web.Keycloak.Components;
+using OpenAttendanceManagement.SiteAdminWeb.Keycloak.Apis;
+using OpenAttendanceManagement.SiteAdminWeb.Keycloak.Components;
+using System.IdentityModel.Tokens.Jwt;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
@@ -17,21 +17,26 @@ builder
     .AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder
-    .Services
-    .AddHttpContextAccessor()
-    .AddTransient<AuthorizationHandler>();
+builder.Services.AddOutputCache();
 
-builder
-    .Services
-    .AddHttpClient<WeatherApiClient>(
-        client =>
-        {
-            // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-            // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-            client.BaseAddress = new Uri("https+http://apiservicekeycloak");
-        })
-    .AddHttpMessageHandler<AuthorizationHandler>();
+builder.Services.AddHttpClient<ApiClient>(
+    client =>
+    {
+        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
+        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
+        client.BaseAddress = new Uri("https+http://siteadminapiservicekeycloak");
+    });
+
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(
+    options =>
+    {
+        options.IdleTimeout = TimeSpan.FromMinutes(30);
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+    });
+
 
 var oidcScheme = OpenIdConnectDefaults.AuthenticationScheme;
 
@@ -46,7 +51,6 @@ builder
         {
             options.ClientId = "oamclient";
             options.ResponseType = OpenIdConnectResponseType.Code;
-            // options.Scope.Add("oamclient-dedicated");
             options.ClientSecret = builder.Configuration["services:keycloak:clientSecret"] ?? string.Empty;
             options.RequireHttpsMetadata = false;
             options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
@@ -57,6 +61,8 @@ builder
 
 builder.Services.AddCascadingAuthenticationState();
 
+builder.Services.AddTransient<TokenServiceKeycloak>();
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -72,10 +78,12 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
+app.UseOutputCache();
+app.UseSession();
+
 app
     .MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
+app.MapDefaultEndpoints();
 app.MapLoginAndLogout();
-
 app.Run();
