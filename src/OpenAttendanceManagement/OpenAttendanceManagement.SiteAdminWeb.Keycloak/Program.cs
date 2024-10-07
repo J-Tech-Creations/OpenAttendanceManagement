@@ -19,14 +19,21 @@ builder
 
 builder.Services.AddOutputCache();
 
-builder.Services.AddHttpClient<ApiClient>(
-    client =>
-    {
-        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-        client.BaseAddress = new Uri("https+http://siteadminapiservicekeycloak");
-    });
+builder
+    .Services
+    .AddHttpContextAccessor();
+builder.Services.AddTransient<AuthorizationHandler>();
 
+builder
+    .Services
+    .AddHttpClient<ApiClient>(
+        client =>
+        {
+            // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
+            // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
+            client.BaseAddress = new Uri("https+http://siteadminapiservicekeycloak");
+        })
+    .AddHttpMessageHandler<AuthorizationHandler>();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(
@@ -62,7 +69,6 @@ builder
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddTransient<TokenServiceKeycloak>();
-builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,4 +1,3 @@
-using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.Common;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries;
@@ -7,12 +6,11 @@ using Sekiban.Core.Command;
 using Sekiban.Core.Query.QueryModel;
 namespace OpenAttendanceManagement.SiteAdminWeb.Keycloak.Apis;
 
-public class ApiClient(HttpClient httpClient, TokenService tokenService)
+public class ApiClient(HttpClient httpClient)
 {
     public Task<ResultBox<ListQueryResult<SimpleTenantQuery.Record>>> GetTenants(
         CancellationToken cancellationToken = default) =>
-        tokenService
-            .SetTokenToHeader(httpClient)
+        ResultBox.Start
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.GetFromJsonAsync<ListQueryResult<SimpleTenantQuery.Record>>(
@@ -22,8 +20,8 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
     public Task<ResultBox<UnitValue>> AddTenant(
         CreateOamTenant command,
         CancellationToken cancellationToken = default) =>
-        tokenService
-            .SetTokenToHeader(httpClient)
+        ResultBox
+            .Start
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.PostAsJsonAsync(
@@ -38,8 +36,8 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
     public Task<ResultBox<UnitValue>> ChangeTenantName(
         ChangeOamTenantName command,
         CancellationToken cancellationToken = default) =>
-        tokenService
-            .SetTokenToHeader(httpClient)
+        ResultBox
+            .Start
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.PostAsJsonAsync(
@@ -54,8 +52,8 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
     public Task<ResultBox<UnitValue>> DeleteTenant(
         DeleteOamTenant command,
         CancellationToken cancellationToken = default) =>
-        tokenService
-            .SetTokenToHeader(httpClient)
+        ResultBox
+            .Start
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.PostAsJsonAsync(
@@ -72,8 +70,8 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
     public Task<ResultBox<UnitValue>> AddTenantAdmin(
         OamTenantAddAuthIdentity command,
         CancellationToken cancellationToken = default) =>
-        tokenService
-            .SetTokenToHeader(httpClient)
+        ResultBox
+            .Start
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.PostAsJsonAsync(
@@ -88,8 +86,8 @@ public class ApiClient(HttpClient httpClient, TokenService tokenService)
     public Task<ResultBox<UnitValue>> RemoveTenantAdmin(
         OamTenantRemoveAuthIdentity command,
         CancellationToken cancellationToken = default) =>
-        tokenService
-            .SetTokenToHeader(httpClient)
+        ResultBox
+            .Start
             .Conveyor(
                 async _ => ResultBox.CheckNull(
                     await httpClient.PostAsJsonAsync(
