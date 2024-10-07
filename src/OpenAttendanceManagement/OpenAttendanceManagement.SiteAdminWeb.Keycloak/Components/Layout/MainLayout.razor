@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Diagnostics
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 
 <div class="page">
@@ -28,6 +29,7 @@
 
     protected override void OnInitialized()
     {
+        Debug.WriteLine("MainLayout.OnInitialized start");
         NavigationManager.LocationChanged += HandleLocationChanged;
     }
 
