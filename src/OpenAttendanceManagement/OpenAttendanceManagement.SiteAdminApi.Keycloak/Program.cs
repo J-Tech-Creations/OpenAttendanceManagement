@@ -19,8 +19,6 @@ builder.Services.AddControllers();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 builder.Services.AddSwaggerGen(
     c =>
     {
@@ -64,7 +62,6 @@ builder
 builder.Services.AddAuthorization();
 
 builder.AddSekibanWithDependency<OamDomainDependency>();
-builder.AddSekibanPostgresDbWithAzureBlobStorage();
 builder.AddSekibanPostgresDbWithAzureBlobStorage();
 builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
     definition => definition.AuthorizationDefinitions =

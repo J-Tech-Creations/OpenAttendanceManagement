@@ -40,7 +40,7 @@ var webAdminKeycloak = builder
     .WithReference(apiServiceAdminKeycloak);
 
 var webKeycloak = builder
-    .AddProject<OpenAttendanceManagement_Web_Keycloak>("keycloakweb")
+    .AddProject<OpenAttendanceManagement_Web_Keycloak>("webkeycloak")
     .WithExternalHttpEndpoints()
     .WithReference(apiServiceKeycloak)
     .WithReference(keycloak);
@@ -53,7 +53,7 @@ var apiService = builder
 
 
 builder
-    .AddProject<OpenAttendanceManagement_Web>("webfrontend")
+    .AddProject<OpenAttendanceManagement_Web>("web")
     .WithExternalHttpEndpoints()
     .WithReference(apiService);
 

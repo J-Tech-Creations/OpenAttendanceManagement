@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.ServiceDefaults;
 using OpenAttendanceManagement.Web.Keycloak;
+using OpenAttendanceManagement.Web.Keycloak.Apis;
 using OpenAttendanceManagement.Web.Keycloak.Components;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder
     .Services
     .AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddOutputCache();
 
 builder
     .Services
@@ -32,6 +35,30 @@ builder
             client.BaseAddress = new Uri("https+http://apiservicekeycloak");
         })
     .AddHttpMessageHandler<AuthorizationHandler>();
+
+builder
+    .Services
+    .AddHttpClient<TenantApiClient>(
+        client =>
+        {
+            // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
+            // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
+            client.BaseAddress = new Uri("https+http://apiservice");
+        })
+    .AddHttpMessageHandler<AuthorizationHandler>();
+builder
+    .Services
+    .AddHttpClient<UserApiClient>(
+        client =>
+        {
+            // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
+            // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
+            client.BaseAddress = new Uri("https+http://apiservice");
+        })
+    .AddHttpMessageHandler<AuthorizationHandler>();
+
+
+builder.Services.AddDistributedMemoryCache();
 
 var oidcScheme = OpenIdConnectDefaults.AuthenticationScheme;
 
@@ -57,6 +84,7 @@ builder
 
 builder.Services.AddCascadingAuthenticationState();
 
+builder.Services.AddTransient<TokenServiceKeycloak>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -75,7 +103,7 @@ app.UseAntiforgery();
 app
     .MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
+app.MapDefaultEndpoints();
 app.MapLoginAndLogout();
 
 app.Run();

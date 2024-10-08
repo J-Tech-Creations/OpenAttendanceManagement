@@ -1,0 +1,96 @@
+using OpenAttendanceManagement.Common;
+using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.Queries;
+using OpenAttendanceManagement.Domain.Aggregates.Queries;
+using ResultBoxes;
+using Sekiban.Core.Query.QueryModel;
+using System.Diagnostics;
+using System.Web;
+namespace OpenAttendanceManagement.Web.Keycloak.Apis;
+
+public class UserApiClient(HttpClient httpClient, TenantInformation tenantInformation)
+{
+    public Task<ResultBox<ListQueryResult<OamTenantUsersQuery.Record>>> GetTenantUsers(
+        CancellationToken cancellationToken = default) =>
+        ResultBox
+            .Start
+            .Conveyor(() => ResultBox.CheckNull(httpClient.BaseAddress))
+            .Conveyor(
+                baseAddress =>
+                {
+                    var uriBuilder = new UriBuilder(
+                        baseAddress.Scheme,
+                        baseAddress.Host,
+                        baseAddress.Port,
+                        "/api/query/oamtenantuser/oamtenantusersquery");
+                    var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+                    query["tenantCode.Value"] = tenantInformation.Tenant?.Value?.TenantCode;
+                    uriBuilder.Query = query.ToString();
+                    return ResultBox.FromValue(uriBuilder.Uri.ToString());
+                })
+            .Conveyor(
+                uri => ResultBox.WrapTry(
+                    () =>
+                        httpClient.GetAsync(
+                            uri,
+                            cancellationToken)))
+            .Do(async response => Debug.Print(await response.Content.ReadAsStringAsync()))
+            .Conveyor(
+                response =>
+                    response.GetResultFromJsonAsync<ListQueryResult<OamTenantUsersQuery.Record>>(cancellationToken));
+
+
+    public async Task<ResultBox<MyUserInformationQuery.Result>> GetMyTenantUser(
+        CancellationToken cancellationToken = default) =>
+        await ResultBox
+            .Start
+            .Log("GetMyTenantUser start")
+            .Conveyor(() => ResultBox.CheckNull(httpClient.BaseAddress))
+            .Log("GetMyTenantUser 0")
+            .Conveyor(
+                baseAddress =>
+                {
+                    var uriBuilder = new UriBuilder(
+                        baseAddress.Scheme,
+                        baseAddress.Host,
+                        baseAddress.Port,
+                        "/api/query/myuserinformationquery");
+                    var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+                    query["tenantCode.Value"] = tenantInformation.Tenant?.Value?.TenantCode;
+                    uriBuilder.Query = query.ToString();
+                    return ResultBox.FromValue(uriBuilder.Uri.ToString());
+                })
+            .Log("GetMyTenantUser 1")
+            .Conveyor(
+                uri => ResultBox.WrapTry(
+                    () =>
+                        httpClient.GetAsync(
+                            uri,
+                            cancellationToken)))
+            .Log("GetMyTenantUser 2")
+            .Do(async response => Debug.Print(await response.Content.ReadAsStringAsync()))
+            .Log("GetMyTenantUser 3")
+            .Do(response => Console.WriteLine(response.StatusCode.ToString()))
+            .Conveyor(
+                response =>
+                    response.GetResultFromJsonAsync<MyUserInformationQuery.Result>(cancellationToken))
+            .Log("GetMyTenantUser end");
+
+    public Task<ResultBox<UnitValue>> CreateUser(
+        CreateUserModel command,
+        CancellationToken cancellationToken = default) =>
+        ResultBox
+            .Start
+            .Conveyor(
+                async _ => ResultBox.CheckNull(
+                    await httpClient.PostAsJsonAsync(
+                        "/register",
+                        command,
+                        cancellationToken)))
+            .Verify(
+                response => response.IsSuccessStatusCode
+                    ? ExceptionOrNone.None
+                    : ExceptionOrNone.FromException(new ApplicationException("Failed to create user")))
+            .Remap(_ => UnitValue.Unit);
+
+    public record CreateUserModel(string Email, string Password);
+}
