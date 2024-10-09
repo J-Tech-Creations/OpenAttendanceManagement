@@ -13,10 +13,11 @@ public class TenantApiClient(HttpClient httpClient, TenantInformation tenantInfo
         ResultBox
             .Start
             .Conveyor(
-                async _ => ResultBox.CheckNull(
-                    await httpClient.GetFromJsonAsync<ListQueryResult<BelongingTenantQuery.Record>>(
-                        "/user/tenants",
-                        cancellationToken)))
+                _ => ResultBox.CheckNullWrapTry(
+                    async () =>
+                        await httpClient.GetFromJsonAsync<ListQueryResult<BelongingTenantQuery.Record>>(
+                            "/user/tenants",
+                            cancellationToken)))
             .Do(
                 records =>
                 {
