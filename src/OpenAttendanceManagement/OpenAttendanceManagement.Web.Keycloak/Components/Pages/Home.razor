@@ -1,7 +1,120 @@
 ﻿@page "/"
-
+@using OpenAttendanceManagement.AuthCommon
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects
+@using OpenAttendanceManagement.Domain.Aggregates.Queries
+@using OpenAttendanceManagement.Web.Keycloak.Apis
+@using ResultBoxes
+@using System.Security.Authentication
+@inject TokenServiceKeycloak TokenService
+@inject NavigationManager NavigationManager
+@inject TenantApiClient TenantApiClient
+@inject TenantInformation TenantInformation
+@inject UserApiClient UserApiClient
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Tenant Code</th>
+        <th>Tenant Name</th>
+        <th>IsActive</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var tenant in TenantInformation.Tenants)
+    {
+        <tr>
+            <td>@tenant.TenantCode</td>
+            <td>@tenant.TenantName</td>
+            <td>
+                @if (tenant.TenantId == TenantInformation.Tenant.Value?.TenantId)
+                {
+                    <span>Current</span>
+                } else
+                {
+                    <button class="btn btn-info" @onclick="() => ChangeTenant(tenant)">Change to Current</button>
+                }
+            </td>
+        </tr>
+    }
+    @switch (MyUserInformation)
+    {
+        case { IsSuccess : false } failure:
+            <p>@failure.GetException().Message</p>
+            break;
+        case { IsSuccess: true } success:
+        {
+            var user = success.GetValue();
+            switch (user.CurrentUserState, user.ExistingUser.HasValue)
+            {
+                case (nameof(OamUnconfirmedTenantUserInformation), true):
+                    <button class="btn btn-info" @onclick="() => AcceptInvitation()">Join Tenant @TenantInformation.Tenant.GetValue().TenantCode</button>
+                    break;
+                case (nameof(OamConfirmedTenantUserInformation), true):
+                    <span>Welcome to tenant @TenantInformation.Tenant.GetValue().TenantCode !!!</span>
+                    break;
+                default:
+                    <p>
+                        No Invitation for the @TenantInformation.Tenant.Match(v => v.TenantCode, () => "[no tenant]") yet. Please ask administarator to add your email address.
+                        @(Email.Match(v => v, _ => "[no email]"))
+                    </p>
+                    break;
+            }
+
+            break;
+        }
+    }
+    </tbody>
+</table>
+
+
+@code {
+    private ResultBox<MyUserInformationQuery.Result> MyUserInformation { get; set; } = ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("Not loaded yet"));
+    private ResultBox<string> Email { get; set; } = ResultBox<string>.FromException(new ApplicationException("Not loaded yet"));
+
+    protected override async Task OnParametersSetAsync() =>
+        await ResultBox
+            .Start
+            .Conveyor(TokenService.CheckToken)
+            .Verify(_ => TokenService.IsLoggedIn ? ExceptionOrNone.None : ExceptionOrNone.FromException(new AuthenticationException("Not Logged In.")))
+            .Conveyor(() => TenantApiClient.GetMyTenants())
+            .Do(
+                async _ =>
+                {
+                    MyUserInformation = TenantInformation.Tenant.HasValue ? await UserApiClient.GetMyTenantUser() : ResultBox<MyUserInformationQuery.Result>.FromException(new ApplicationException("You don't have tenant invitation yet."));
+                })
+            .DoResultWrapTry(async _ => { Email = await TokenService.GetEmailAsync(); })
+            .DoWrapTry(StateHasChanged);
+
+
+    private async Task ChangeTenant(BelongingTenantQuery.Record toChange)
+    {
+        TenantInformation.ChangeTenant(toChange.TenantId);
+        if (TenantInformation.Tenant.HasValue)
+        {
+            MyUserInformation = await UserApiClient.GetMyTenantUser();
+            StateHasChanged();
+        }
+    }
+    
+    private async Task AcceptInvitation()
+    {
+        if (TenantInformation.Tenant.HasValue)
+        {
+            var tenant = TenantInformation.Tenant.GetValue();
+            var result = await TenantApiClient.AddUserAcceptInviteOnTenant(new OamTenantUserAcceptInvite(new TenantCode(tenant.TenantCode), new OamTenantId(tenant.TenantId)));
+            if (result.IsSuccess)
+            {
+                MyUserInformation = await UserApiClient.GetMyTenantUser();
+                StateHasChanged();
+            }
+        }
+    }
+
+}

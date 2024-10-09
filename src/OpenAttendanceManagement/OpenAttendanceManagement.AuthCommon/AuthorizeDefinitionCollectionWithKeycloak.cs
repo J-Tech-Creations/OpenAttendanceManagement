@@ -39,6 +39,7 @@ public class
                 commandType,
                 async roles =>
                 {
+                    await Task.CompletedTask;
                     var isInRole = false;
 
                     var userIdClaim =

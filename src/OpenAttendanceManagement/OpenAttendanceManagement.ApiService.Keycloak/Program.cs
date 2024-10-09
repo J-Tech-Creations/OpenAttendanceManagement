@@ -1,4 +1,18 @@
+using Microsoft.OpenApi.Models;
+using OpenAttendanceManagement.AuthCommon;
+using OpenAttendanceManagement.Common;
+using OpenAttendanceManagement.Domain;
+using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries;
+using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
 using OpenAttendanceManagement.ServiceDefaults;
+using ResultBoxes;
+using Sekiban.Core;
+using Sekiban.Core.Dependency;
+using Sekiban.Infrastructure.Postgres;
+using Sekiban.Web.Authorizations;
+using Sekiban.Web.Authorizations.Definitions;
+using Sekiban.Web.Dependency;
+using Sekiban.Web.OpenApi.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
@@ -7,7 +21,31 @@ builder.AddServiceDefaults();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(
+    c =>
+    {
+        c.AddSecurityDefinition(
+            "bearerAuth",
+            new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                Description = "JWT Authorization header using the Bearer scheme."
+            });
+        c.AddSecurityRequirement(
+            new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                            { Type = ReferenceType.SecurityScheme, Id = "bearerAuth" }
+                    },
+                    new string[] { }
+                }
+            });
+    });
 
 builder
     .Services
@@ -25,6 +63,16 @@ builder
 
 builder.Services.AddAuthorization();
 
+builder.AddSekibanWithDependency<OamDomainDependency>();
+builder.AddSekibanPostgresDbWithAzureBlobStorage();
+builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
+    definition => definition.AuthorizationDefinitions =
+        new AuthorizeDefinitionCollectionWithKeycloak(
+            new AllowOnlyWithRolesAndDenyIfNot<AllMethod, OamRoles>(OamRoles.SiteAdmin)));
+builder.Services.AddSwaggerGen(options => options.ConfigureForSekibanWeb());
+
+builder.Services.AddTransient<IOamAuthentication, OamAuthenticationKeycloak>();
+builder.Services.AddTransient<TokenServiceKeycloak>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -64,4 +112,33 @@ app
     .WithOpenApi()
     .RequireAuthorization();
 
+app
+    .MapGet(
+        "/user/roles",
+        (TokenServiceKeycloak tokenServiceKeycloak) =>
+            tokenServiceKeycloak
+                .GetRolesAsync()
+                .Match(
+                    roles => Results.Ok(roles),
+                    error => Results.Unauthorized()))
+    .WithName("GetUserRoles")
+    .WithOpenApi()
+    .RequireAuthorization();
+app.MapControllers();
+
+app
+    .MapGet(
+        "/user/tenants",
+        (ISekibanExecutor sekibanExecutor, TokenServiceKeycloak tokenServiceKeycloak) =>
+            tokenServiceKeycloak
+                .GetEmailAsync()
+                .Remap(AuthIdentityEmail.FromString)
+                .Conveyor(email => sekibanExecutor.ExecuteQuery(new BelongingTenantQuery(email)))
+                .ToResults()
+    )
+    .WithName("GetUserTenants")
+    .WithOpenApi()
+    .RequireAuthorization();
+
+app.MapControllers();
 app.Run();
