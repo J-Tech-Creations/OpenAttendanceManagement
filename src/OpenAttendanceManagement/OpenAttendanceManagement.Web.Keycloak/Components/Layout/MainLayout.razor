@@ -1,8 +1,10 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Diagnostics
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu/>
+        <NavMenu @ref="navMenu"/>
     </div>
 
     <main>
@@ -21,3 +23,24 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private NavMenu navMenu = new();
+
+    protected override void OnInitialized()
+    {
+        Debug.WriteLine("MainLayout.OnInitialized start");
+        NavigationManager.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        navMenu.StateHasChangedAsync();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+
+}

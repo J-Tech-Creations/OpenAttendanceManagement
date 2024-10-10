@@ -26,13 +26,12 @@
 @code {
     private NavMenu navMenu;
 
-    // protected override void OnInitialized()
-    // {
-    //     Console.WriteLine("OnInitialized MainLayout start");
-    //     // NavigationManager.LocationChanged += HandleLocationChanged;
-    //
-    //     Console.WriteLine("OnInitialized MainLayout end");
-    // }
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        NavigationManager.LocationChanged += HandleLocationChanged;
+    }
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -50,17 +49,17 @@
         Console.WriteLine("OnParametersSetAsync MainLayout end");
     }
 
-    // private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
-    // {
-    //     Console.WriteLine("HandleLocationChanged MainLayout Start");
-    //     _ = navMenu.StateHasChangedAsync();
-    //     Console.WriteLine("HandleLocationChanged MainLayout End");
-    // }
-    //
-    // public void Dispose()
-    // {
-    //     Console.WriteLine("Dispose MainLayout");
-    //     // NavigationManager.LocationChanged -= HandleLocationChanged;
-    // }
-    //
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        Console.WriteLine("HandleLocationChanged MainLayout Start");
+        _ = navMenu.StateHasChangedAsync();
+        Console.WriteLine("HandleLocationChanged MainLayout End");
+    }
+
+    public void Dispose()
+    {
+        Console.WriteLine("Dispose MainLayout");
+        // NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+
 }

@@ -1,7 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-@using OpenAttendanceManagement.AuthCommon
+@using OpenAttendanceManagement.Web.Keycloak.Apis
 @using ResultBoxes
-@inject TokenServiceKeycloak TokenService
+@inject TenantInformation TenantInformation
+@inject TenantApiClient TenantApiClient
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -32,6 +33,14 @@
                         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
                     </NavLink>
                 </div>
+                @if (TenantInformation.IsCurrentTenantAdmin)
+                {
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="admin">
+                            <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Admin
+                        </NavLink>
+                    </div>
+                }
             </Authorized>
         </AuthorizeView>
     </nav>
@@ -50,12 +59,8 @@
         await base.OnParametersSetAsync();
         Console.WriteLine("OnParametersSetAsync NavMenu end");
     }
-    public Task StateHasChangedAsync() => TokenService
-        .CheckToken()
-        .DoResult(
-            _ =>
-            {
-                StateHasChanged();
-            });
+    public async Task StateHasChangedAsync() => await TenantApiClient
+        .GetMyTenants()
+        .DoResult(_ => StateHasChanged());
 
 }

@@ -13,6 +13,8 @@ public record TenantInformation(
     public OptionalValue<BelongingTenantQuery.Record> Tenant { get; set; } = Tenant;
     public List<BelongingTenantQuery.Record> Tenants { get; set; } = Tenants;
 
+    public bool IsCurrentTenantAdmin => Tenant.Match(t => t.IsTenantAdmin, false);
+
     public ResultBox<UnitValue> ChangeTenant(Guid tenantId)
         => ResultBox.Start
             .Do(() => { Tenant = Tenants.FirstOrDefault(t => t.TenantId == tenantId) ?? Tenant; });

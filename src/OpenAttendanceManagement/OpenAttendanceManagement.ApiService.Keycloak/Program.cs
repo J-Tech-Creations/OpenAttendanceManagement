@@ -71,6 +71,7 @@ builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
             new AllowOnlyWithRolesAndDenyIfNot<AllMethod, OamRoles>(OamRoles.SiteAdmin)));
 builder.Services.AddSwaggerGen(options => options.ConfigureForSekibanWeb());
 
+builder.Services.AddTransient<IOamUserManager, OamUserManagerKeycloak>();
 builder.Services.AddTransient<IOamAuthentication, OamAuthenticationKeycloak>();
 builder.Services.AddTransient<TokenServiceKeycloak>();
 var app = builder.Build();

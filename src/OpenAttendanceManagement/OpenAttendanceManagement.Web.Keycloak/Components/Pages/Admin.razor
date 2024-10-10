@@ -1,16 +1,19 @@
-﻿@page "/admin"
+@page "/admin"
+@using Microsoft.AspNetCore.OutputCaching
+@using OpenAttendanceManagement.AuthCommon
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.Queries
 @using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects
-@using OpenAttendanceManagement.Web.Apis
+@using OpenAttendanceManagement.Web.Keycloak.Apis
+@using ResultBoxes
 @using Sekiban.Core.Query.QueryModel
 @attribute [StreamRendering]
 @attribute [OutputCache(Duration = 5)]
 
 @inject WeatherApiClient WeatherApi
 @inject TenantApiClient TenantApi
-@inject TokenService TokenService
+@inject TokenServiceKeycloak TokenService
 @inject NavigationManager NavigationManager
 @inject TenantInformation TenantInformation
 @inject UserApiClient UserApi
@@ -106,7 +109,6 @@
 
 
 @code {
-    private WeatherForecast[]? forecasts;
     private ResultBox<ListQueryResult<OamTenantUsersQuery.Record>> users = ListQueryResult<OamTenantUsersQuery.Record>.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -116,7 +118,7 @@
 
 
     protected override Task OnParametersSetAsync() => TokenService
-        .UpdateRoleAsync()
+        .CheckToken()
         .Scan(_ => { }, _ => NavigationManager.NavigateTo("/login"));
 
     #region add tenant user

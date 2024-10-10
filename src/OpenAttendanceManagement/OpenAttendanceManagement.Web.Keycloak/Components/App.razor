@@ -9,11 +9,14 @@
     <link rel="stylesheet" href="app.css"/>
     <link rel="stylesheet" href="OpenAttendanceManagement.Web.Keycloak.styles.css"/>
     <link rel="icon" type="image/png" href="favicon.png"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- BootstrapのJavaScriptライブラリを読み込む -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <HeadOutlet/>
 </head>
 
 <body>
-<Routes/>
+<Routes @rendermode="@(new InteractiveServerRenderMode(false))"/>
 <script src="_framework/blazor.web.js"></script>
 </body>
 

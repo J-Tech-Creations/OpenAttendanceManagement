@@ -92,18 +92,20 @@
                 .DoResult(_ => StateHasChanged())
                 .DoResult(result => result.Log("NavMenu OnParametersSetAsync end"));
 
-    // public Task StateHasChangedAsync() =>
-    //     ResultBox.Start
-    //         .DoResult(result => result.Log("NavMenu StateHasChangedAsync start"))
-    //         .Conveyor(_ => TokenService.UpdateRoleAsync())
-    //         .ScanResult(result =>
-    //         {
-    //             IsLoggedIn = result.IsSuccess;
-    //             IsSiteAdmin = result.IsSuccess && TokenService.IsSiteAdmin;
-    //         })
-    //         .DoResult(
-    //             _ => { StateHasChanged(); })
-    //         .DoResult(result => result.Log("NavMenu StateHasChangedAsync end"));
+    public Task StateHasChangedAsync() =>
+        ResultBox
+            .Start
+            .DoResult(result => result.Log("NavMenu StateHasChangedAsync start"))
+            .Conveyor(_ => TokenService.UpdateRoleAsync())
+            .ScanResult(
+                result =>
+                {
+                    IsLoggedIn = result.IsSuccess;
+                    IsSiteAdmin = result.IsSuccess && TokenService.IsSiteAdmin;
+                })
+            .DoResult(
+                _ => { StateHasChanged(); })
+            .DoResult(result => result.Log("NavMenu StateHasChangedAsync end"));
 
 
     private async Task LogOut()
