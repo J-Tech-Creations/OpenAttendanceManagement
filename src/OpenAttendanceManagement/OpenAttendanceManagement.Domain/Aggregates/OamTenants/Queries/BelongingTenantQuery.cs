@@ -25,7 +25,8 @@ public record BelongingTenantQuery(AuthIdentityEmail Email)
                         m.Payload.Users.FirstOrDefault(u => u.AuthIdentityEmail.NormalizedEquals(query.Email)) is
                             { } user
                             ? user.GetType().Name
-                            : nameof(OamUnconfirmedUncreatedTenantUserInformation))));
+                            : nameof(OamUnconfirmedUncreatedTenantUserInformation),
+                        m.Payload.Admins.Any(a => a.NormalizedEquals(query.Email)))));
 
     public static ResultBox<IEnumerable<Record>> HandleSort(
         IEnumerable<Record> filteredList,
@@ -33,5 +34,10 @@ public record BelongingTenantQuery(AuthIdentityEmail Email)
         IQueryContext context) =>
         ResultBox.Ok(filteredList.OrderBy(m => m.TenantName).AsEnumerable());
 
-    public record Record(string TenantCode, string TenantName, Guid TenantId, string UserClassName);
+    public record Record(
+        string TenantCode,
+        string TenantName,
+        Guid TenantId,
+        string UserClassName,
+        bool IsTenantAdmin);
 }

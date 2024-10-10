@@ -29,6 +29,20 @@ public class TokenServiceKeycloak(IHttpContextAccessor httpContextAccessor)
                         handler => ResultBox.CheckNull(
                             handler.ReadJwtToken(token).Claims?.FirstOrDefault(c => c.Type == "email")))
                     .Conveyor(claim => ResultBox.FromValue(claim.Value)));
+    public Task<ResultBox<string>> GetIdAsync()
+        => ResultBox
+            .Start
+            .Conveyor(
+                _ => ResultBox
+                    .CheckNull(httpContextAccessor.HttpContext)
+                    .Conveyor(context => ResultBox.CheckNull(context.GetTokenAsync("access_token"))))
+            .Conveyor(
+                token => ResultBox
+                    .FromValue(new JwtSecurityTokenHandler())
+                    .Conveyor(
+                        handler => ResultBox.CheckNull(
+                            handler.ReadJwtToken(token).Claims?.FirstOrDefault(c => c.Type == "sub")))
+                    .Conveyor(claim => ResultBox.FromValue(claim.Value)));
 
     public Task<ResultBox<List<string>>> GetRolesAsync()
         => ResultBox
