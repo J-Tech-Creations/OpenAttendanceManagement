@@ -1,0 +1,12 @@
+using OpenAttendanceManagement.Domain.Aggregates.OamTermTenants.ValueObjects;
+using OpenAttendanceManagement.Domain.Aggregates.OamTermUsers.ValueObjects;
+using Sekiban.Core.Aggregate;
+using System.Collections.Immutable;
+namespace OpenAttendanceManagement.Domain.Aggregates.OamTermTenants;
+
+public record OamTermTenant(OamTerm Term, ImmutableArray<OamTermUserId> TermUserIds)
+    : ITenantAggregatePayload<OamTermTenant>
+{
+    public static OamTermTenant CreateInitialPayload(OamTermTenant? _) =>
+        new(OamTerm.Default, ImmutableArray<OamTermUserId>.Empty);
+}

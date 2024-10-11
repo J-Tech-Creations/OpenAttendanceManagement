@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using OpenAttendanceManagement.ApiService.Keycloak;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.Common;
 using OpenAttendanceManagement.Domain;
