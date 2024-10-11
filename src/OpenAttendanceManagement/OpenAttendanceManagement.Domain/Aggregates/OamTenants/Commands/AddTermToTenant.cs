@@ -6,7 +6,7 @@ namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 
 public record AddTermToTenant(
     TenantCode TenantCode,
-    DateOnly Month,
+    OamTerm Term,
     OamTermTenantId TermTenantId,
     int ReferenceVersion)
     : ITenantCommandWithHandlerWithVersionValidationForExistingAggregateAsync<OamTenant, AddTermToTenant>

@@ -2,6 +2,7 @@ using Microsoft.OpenApi.Models;
 using OpenAttendanceManagement.ApiService.Keycloak;
 using OpenAttendanceManagement.AuthCommon;
 using OpenAttendanceManagement.Common;
+using OpenAttendanceManagement.Common.UseCases;
 using OpenAttendanceManagement.Domain;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
@@ -71,6 +72,9 @@ builder.AddSekibanWebFromDomainDependency<OamDomainDependency>(
         new AuthorizeDefinitionCollectionWithKeycloak(
             new AllowOnlyWithRolesAndDenyIfNot<AllMethod, OamRoles>(OamRoles.SiteAdmin)));
 builder.Services.AddSwaggerGen(options => options.ConfigureForSekibanWeb());
+
+builder.Services.AddTransient<ISekibanUsecaseExecutor, SekibanUsecaseExecutor>();
+builder.Services.AddTransient<ISekibanUsecaseContext, SekibanUsecaseContext>();
 
 builder.Services.AddTransient<IOamUserManager, OamUserManagerKeycloak>();
 builder.Services.AddTransient<IOamAuthentication, OamAuthenticationKeycloak>();
