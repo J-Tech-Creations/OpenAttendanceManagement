@@ -17,8 +17,7 @@
     <p>
         <em>Loading...</em>
     </p>
-}
-else
+} else
 {
     <table class="table">
         <thead>
@@ -44,7 +43,7 @@ else
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private readonly WeatherForecast[]? forecasts = null;
 
     protected override async Task OnInitializedAsync()
     {
