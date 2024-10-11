@@ -1,7 +1,7 @@
 using ResultBoxes;
 namespace OpenAttendanceManagement.Common.UseCases;
 
-public interface ISekibanUsecase<TIn, TOut> : IEquatable<TIn>
+public interface ISekibanUsecase<in TIn, TOut>
     where TIn : class, ISekibanUsecase<TIn, TOut>, IEquatable<TIn>
     where TOut : notnull
 {
