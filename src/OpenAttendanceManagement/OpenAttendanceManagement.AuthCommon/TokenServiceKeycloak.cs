@@ -22,6 +22,7 @@ public class TokenServiceKeycloak(IHttpContextAccessor httpContextAccessor)
                 _ => ResultBox
                     .CheckNull(httpContextAccessor.HttpContext)
                     .Conveyor(context => ResultBox.CheckNull(context.GetTokenAsync("access_token"))))
+            .Log()
             .Conveyor(
                 token => ResultBox
                     .FromValue(new JwtSecurityTokenHandler())

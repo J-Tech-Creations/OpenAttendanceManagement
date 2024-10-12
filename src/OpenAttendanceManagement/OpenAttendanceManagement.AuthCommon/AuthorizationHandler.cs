@@ -15,6 +15,8 @@ public class AuthorizationHandler(IHttpContextAccessor httpContextAccessor) : De
 
         var accessToken = await httpContext.GetTokenAsync("access_token");
 
+        Console.WriteLine(accessToken);
+
         // jwt token から Roles を取得する
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(accessToken);

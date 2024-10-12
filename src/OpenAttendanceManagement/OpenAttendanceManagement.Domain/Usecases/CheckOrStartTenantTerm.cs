@@ -24,13 +24,18 @@ public record CheckOrStartTenantTerm(
             .GetAggregateState<OamTenant>(input.TenantId.Value, input.TenantCode.Value)
             .Combine(() => ResultBox.FromValue(OamTerm.MonthTerm(input.Year, input.Month)))
             .Verify(
-                (state, term) => !state.Payload.Terms.ContainsKey(term.Start)
+                (state, term) => !state.Payload.Terms.ContainsKey(term)
                     ? ExceptionOrNone.None
                     : new ApplicationException("Term already exists"))
             .Combine((_, term) => context.ExecuteCommand(new CreateOamTermTenant(input.TenantCode, term)))
             .Combine((_, _, executed) => ResultBox.CheckNull(executed.AggregateId))
             .Conveyor(
                 (state, term, _, aggregateId) => context.ExecuteCommand(
-                    new AddTermToTenant(input.TenantCode, term, new OamTermTenantId(aggregateId), state.Version)))
+                    new AddTermToTenant(
+                        input.TenantCode,
+                        input.TenantId,
+                        term,
+                        new OamTermTenantId(aggregateId),
+                        state.Version)))
             .Conveyor(_ => ResultBox.Start);
 }

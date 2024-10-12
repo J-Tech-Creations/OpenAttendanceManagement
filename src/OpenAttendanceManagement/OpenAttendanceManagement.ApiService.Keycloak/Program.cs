@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using OpenAttendanceManagement.ApiService.Keycloak;
 using OpenAttendanceManagement.AuthCommon;
@@ -6,6 +7,7 @@ using OpenAttendanceManagement.Common.UseCases;
 using OpenAttendanceManagement.Domain;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Queries;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenantUsers.ValueObjects;
+using OpenAttendanceManagement.Domain.Usecases;
 using OpenAttendanceManagement.ServiceDefaults;
 using ResultBoxes;
 using Sekiban.Core;
@@ -143,6 +145,18 @@ app
                 .ToResults()
     )
     .WithName("GetUserTenants")
+    .WithOpenApi()
+    .RequireAuthorization();
+
+app
+    .MapPost(
+        "/admin/startmonth",
+        async ([FromBody] CheckOrStartTenantTerm input, [FromServices] ISekibanExecutor executor)
+            => await executor
+                .Execute(input)
+                .Match(success => Results.Ok(), exception => Results.Problem(exception.Message))
+    )
+    .WithName("StartMonth")
     .WithOpenApi()
     .RequireAuthorization();
 

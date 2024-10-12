@@ -12,7 +12,7 @@ public record OamTenant(
     TenantName TenantName,
     ImmutableList<IOamTenantUserInformation> Users,
     ImmutableList<AuthIdentityEmail> Admins,
-    ImmutableDictionary<DateOnly, OamTermTenantId> Terms,
+    ImmutableDictionary<OamTerm, OamTermTenantId> Terms,
     bool IsDeleted) : ITenantDeletableAggregatePayload<OamTenant>
 {
     public static OamTenant CreateInitialPayload(OamTenant? _) =>
@@ -21,7 +21,7 @@ public record OamTenant(
             TenantName.Default,
             ImmutableList<IOamTenantUserInformation>.Empty,
             ImmutableList<AuthIdentityEmail>.Empty,
-            ImmutableDictionary<DateOnly, OamTermTenantId>.Empty,
+            ImmutableDictionary<OamTerm, OamTermTenantId>.Empty,
             false);
 
     public ExceptionOrNone ValidateAdminUserEmail(AuthIdentityEmail email)
