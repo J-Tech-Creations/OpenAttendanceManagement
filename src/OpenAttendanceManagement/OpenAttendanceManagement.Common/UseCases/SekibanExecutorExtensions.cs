@@ -1,5 +1,7 @@
 using ResultBoxes;
 using Sekiban.Core;
+using Sekiban.Core.Exceptions;
+using Sekiban.Core.Validation;
 namespace OpenAttendanceManagement.Common.UseCases;
 
 public static class SekibanExecutorExtensions
@@ -8,8 +10,13 @@ public static class SekibanExecutorExtensions
         this ISekibanExecutor executor,
         ISekibanUsecaseAsync<TIn, TOut> usecaseAsync)
         where TIn : class, ISekibanUsecaseAsync<TIn, TOut>, IEquatable<TIn> where TOut : notnull
-        => executor
-            .GetRequiredService<ISekibanUsecaseContext>()
+        => ResultBox
+            .FromValue(usecaseAsync.ValidateProperties().ToList())
+            .Verify(
+                validationResult => validationResult.Count == 0
+                    ? ExceptionOrNone.None
+                    : new SekibanValidationErrorsException(validationResult))
+            .Conveyor(executor.GetRequiredService<ISekibanUsecaseContext>)
             .Conveyor(context => new SekibanUsecaseExecutor(context).Execute(usecaseAsync));
     public static ResultBox<TwoValues<T1, T2>> GetRequiredService<T1, T2>(this ISekibanExecutor executor)
         where T1 : class where T2 : class =>
@@ -28,7 +35,16 @@ public static class SekibanExecutorExtensions
         this ISekibanUsecaseContext context,
         ISekibanUsecaseAsync<TIn, TOut> usecaseAsync)
         where TIn : class, ISekibanUsecaseAsync<TIn, TOut>, IEquatable<TIn> where TOut : notnull
-        => new SekibanUsecaseExecutor(context).Execute(usecaseAsync);
+        =>
+            ResultBox
+                .FromValue(usecaseAsync.ValidateProperties().ToList())
+                .Verify(
+                    validationResult => validationResult.Count == 0
+                        ? ExceptionOrNone.None
+                        : new SekibanValidationErrorsException(validationResult))
+                .Conveyor(
+                    () =>
+                        new SekibanUsecaseExecutor(context).Execute(usecaseAsync));
 
     public static ResultBox<TwoValues<T1, T2>> GetRequiredService<T1, T2>(this ISekibanUsecaseContext executor)
         where T1 : class where T2 : class =>

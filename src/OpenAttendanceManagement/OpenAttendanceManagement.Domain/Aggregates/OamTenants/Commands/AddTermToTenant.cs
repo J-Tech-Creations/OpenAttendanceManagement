@@ -1,3 +1,4 @@
+using OpenAttendanceManagement.Domain.Aggregates.OamTenants.Events;
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
 using OpenAttendanceManagement.Domain.Aggregates.OamTermTenants.ValueObjects;
 using ResultBoxes;
@@ -6,15 +7,15 @@ namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 
 public record AddTermToTenant(
     TenantCode TenantCode,
+    OamTenantId TenantId,
     OamTerm Term,
     OamTermTenantId TermTenantId,
     int ReferenceVersion)
-    : ITenantCommandWithHandlerWithVersionValidationForExistingAggregateAsync<OamTenant, AddTermToTenant>
+    : ITenantCommandWithHandlerWithVersionValidationForExistingAggregate<OamTenant, AddTermToTenant>
 {
 
-    public static Guid SpecifyAggregateId(AddTermToTenant command) => Guid.NewGuid();
-    public static Task<ResultBox<UnitValue>> HandleCommandAsync(
-        AddTermToTenant command,
-        ICommandContext<OamTenant> context) => throw new NotImplementedException();
+    public static Guid SpecifyAggregateId(AddTermToTenant command) => command.TenantId.Value;
     public string GetTenantId() => TenantCode.Value;
+    public static ResultBox<UnitValue> HandleCommand(AddTermToTenant command, ICommandContext<OamTenant> context) =>
+        context.AppendEvent(new TermAddedToTenant(command.Term, command.TermTenantId));
 }

@@ -10,6 +10,6 @@ public record CreateOamTermTenant(TenantCode TenantCode, OamTerm Term)
     public static Guid SpecifyAggregateId(CreateOamTermTenant command) => Guid.NewGuid();
     public static ResultBox<UnitValue> HandleCommand(
         CreateOamTermTenant command,
-        ICommandContext<OamTermTenant> context) => throw new NotImplementedException();
+        ICommandContext<OamTermTenant> context) => context.AppendEvent(new OamTermTenantCreated(command.Term));
     public string GetTenantId() => TenantCode.Value;
 }
