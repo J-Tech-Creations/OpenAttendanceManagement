@@ -1,6 +1,6 @@
 using OpenAttendanceManagement.Domain.Aggregates.OamTermTenants.ValueObjects;
 using Sekiban.Core.Events;
-namespace OpenAttendanceManagement.Domain.Aggregates.OamTermTenants.Commands;
+namespace OpenAttendanceManagement.Domain.Aggregates.OamTermTenants.Events;
 
 public record OamTermTenantCreated(OamTerm Term) : IEventPayload<OamTermTenant, OamTermTenantCreated>
 {
