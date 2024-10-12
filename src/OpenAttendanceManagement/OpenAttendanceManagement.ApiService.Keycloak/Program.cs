@@ -153,7 +153,7 @@ app
         "/admin/startmonth",
         async ([FromBody] CheckOrStartTenantTerm input, [FromServices] ISekibanExecutor executor)
             => await executor
-                .Execute(input)
+                .ExecuteUsecase(input)
                 .Match(success => Results.Ok(), exception => Results.Problem(exception.Message))
     )
     .WithName("StartMonth")
