@@ -1,4 +1,5 @@
 using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects;
+using OpenAttendanceManagement.Domain.Aggregates.OamTermTenants.Events;
 using OpenAttendanceManagement.Domain.Aggregates.OamTermTenants.ValueObjects;
 using ResultBoxes;
 using Sekiban.Core.Command;
