@@ -151,7 +151,7 @@ app
 app
     .MapPost(
         "/admin/startmonth",
-        async ([FromBody] CheckOrStartTenantTerm input, [FromServices] ISekibanExecutor executor)
+        async ([FromBody] CheckOrStartTenantTermAndAddAllUser input, [FromServices] ISekibanExecutor executor)
             => await executor
                 .ExecuteUsecase(input)
                 .Match(success => Results.Ok(), exception => Results.Problem(exception.Message))
