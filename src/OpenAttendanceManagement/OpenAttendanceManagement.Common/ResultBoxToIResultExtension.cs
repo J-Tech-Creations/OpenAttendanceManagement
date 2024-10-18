@@ -1,5 +1,4 @@
 using ResultBoxes;
-
 namespace OpenAttendanceManagement.Common;
 
 public static class ResultBoxToIResultExtension
