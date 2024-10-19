@@ -10,8 +10,8 @@
     <ItemGroup>
         <PackageReference Include="Aspire.Keycloak.Authentication" Version="8.2.0-preview.1.24428.5"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2"/>
-        <PackageReference Include="Sekiban.Infrastructure.Postgres" Version="0.22.0-preview4"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1"/>
+        <PackageReference Include="Sekiban.Infrastructure.Postgres" Version="0.22.0-preview5"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
     </ItemGroup>
 
     <ItemGroup>

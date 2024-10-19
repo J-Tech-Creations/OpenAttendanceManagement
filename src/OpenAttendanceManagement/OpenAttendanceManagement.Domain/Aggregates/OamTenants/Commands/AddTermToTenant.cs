@@ -16,6 +16,8 @@ public record AddTermToTenant(
 
     public static Guid SpecifyAggregateId(AddTermToTenant command) => command.TenantId.Value;
     public string GetTenantId() => TenantCode.Value;
-    public static ResultBox<UnitValue> HandleCommand(AddTermToTenant command, ICommandContext<OamTenant> context) =>
+    public static ResultBox<EventOrNone<OamTenant>> HandleCommand(
+        AddTermToTenant command,
+        ICommandContext<OamTenant> context) =>
         context.AppendEvent(new TermAddedToTenant(command.Term, command.TermTenantId));
 }

@@ -13,7 +13,9 @@ public record CreateOamTermUser(
 {
 
     public static Guid SpecifyAggregateId(CreateOamTermUser command) => Guid.NewGuid();
-    public static ResultBox<UnitValue> HandleCommand(CreateOamTermUser command, ICommandContext<OamTermUser> context) =>
+    public static ResultBox<EventOrNone<OamTermUser>> HandleCommand(
+        CreateOamTermUser command,
+        ICommandContext<OamTermUser> context) =>
         context.AppendEvent(new OamTermUserCreated(command.TermTenantId, command.TenantUserId, command.UserName));
     public string GetTenantId() => TenantCode.Value;
 }

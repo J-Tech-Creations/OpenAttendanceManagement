@@ -10,8 +10,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.8"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4"/>
-        <PackageReference Include="ResultBoxes" Version="0.3.25"/>
-        <PackageReference Include="Sekiban.Web" Version="0.22.0-preview4"/>
+        <PackageReference Include="ResultBoxes" Version="0.3.26"/>
+        <PackageReference Include="Sekiban.Web" Version="0.22.0-preview5"/>
     </ItemGroup>
 
     <ItemGroup>

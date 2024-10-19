@@ -11,7 +11,7 @@ public record OamTenantRemoveAuthIdentity(
     AuthIdentityEmail Email,
     TenantCode TenantCode) : ITenantCommandWithHandler<OamTenant, OamTenantRemoveAuthIdentity>
 {
-    public static ResultBox<UnitValue> HandleCommand(
+    public static ResultBox<EventOrNone<OamTenant>> HandleCommand(
         OamTenantRemoveAuthIdentity command,
         ICommandContext<OamTenant> context) =>
         ResultBox
