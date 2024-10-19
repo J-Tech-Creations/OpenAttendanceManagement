@@ -12,7 +12,7 @@ public record ChangeOamTenantName(
     TenantName TenantName)
     : ITenantCommandWithHandlerAsync<OamTenant, ChangeOamTenantName>
 {
-    public static Task<ResultBox<UnitValue>> HandleCommandAsync(
+    public static Task<ResultBox<EventOrNone<OamTenant>>> HandleCommandAsync(
         ChangeOamTenantName command,
         ICommandContext<OamTenant> context) =>
         context

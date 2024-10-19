@@ -1,0 +1,207 @@
+@page "/terms"
+@using Microsoft.AspNetCore.OutputCaching
+@using OpenAttendanceManagement.AuthCommon
+@using OpenAttendanceManagement.Domain.Aggregates.OamTenants.ValueObjects
+@using OpenAttendanceManagement.Domain.Aggregates.OamTermTenants.Queries
+@using OpenAttendanceManagement.Domain.Aggregates.OamTermTenants.ValueObjects
+@using OpenAttendanceManagement.Domain.Usecases
+@using OpenAttendanceManagement.Web.Keycloak.Apis
+@using ResultBoxes
+@using Sekiban.Core.Query.QueryModel
+@attribute [StreamRendering]
+@attribute [OutputCache(Duration = 5)]
+
+@inject WeatherApiClient WeatherApi
+@inject TenantApiClient TenantApi
+@inject TokenServiceKeycloak TokenService
+@inject NavigationManager NavigationManager
+@inject TenantInformation TenantInformation
+@inject UserApiClient UserApi
+@inject IJSRuntime JsRuntime
+@rendermode @(new InteractiveServerRenderMode(false))
+
+<PageTitle>Terms</PageTitle>
+
+<h1>Terms</h1>
+
+<p>This component demonstrates showing data loaded from a backend API service.</p>
+
+@if (!users.IsSuccess)
+{
+    <p>
+        <em>Loading...</em>
+        <span>@users.GetException().Message</span>
+    </p>
+} else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Users</th>
+            <th>
+                <button class="btn btn-info" @onclick="() => OpenAddTermModal()">Add User</button>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in users.GetValue().Items)
+        {
+            <tr>
+                <td>@user.StartDate</td>
+                <td>@user.EndDate</td>
+                <td>@user.NumberOfUsers</td>
+                <td>
+                    <button class="btn btn-info" @onclick="() => OpenAddUsersModal(user)">Add User to Month</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+<div class="modal fade" id="addTermModal" tabindex="-1" role="dialog" aria-labelledby="createUserNameLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserNameLabel">Change Tenant Name</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@createUserModel" OnValidSubmit="HandleCreateModelSubmit">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    <div class="form-group">
+                        <label for="message">Add New Month.</label>
+                    </div>
+                    @if (!string.IsNullOrEmpty(createUserModel.AddError))
+                    {
+                        <p>@createUserModel.AddError</p>
+                    }
+                    <button type="submit" class="btn btn-primary">Add Term</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addUsersModal" tabindex="-1" role="dialog" aria-labelledby="addUsersLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUsersLabel">Change Tenant Name</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@addUsersModel" OnValidSubmit="HandleAddUsersSubmit">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    <div class="form-group">
+                        <label for="message">Add Users to the term.</label>
+                    </div>
+                    @if (!string.IsNullOrEmpty(createUserModel.AddError))
+                    {
+                        <p>@createUserModel.AddError</p>
+                    }
+                    <button type="submit" class="btn btn-primary">Add Users</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function DisplayAddTermModal (param) {
+        $('#addTermModal').modal(param);
+    }
+    function DisplayAddUsersModal (param) {
+        $('#addUsersModal').modal(param);
+    }
+</script>
+
+
+@code {
+    private ResultBox<ListQueryResult<OamTermTenantsListQuery.Record>> users = ListQueryResult<OamTermTenantsListQuery.Record>.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await TenantApi.GetTenantTermList();
+    }
+
+
+    protected override Task OnParametersSetAsync() => TokenService
+        .CheckToken()
+        .Scan(_ => { }, _ => NavigationManager.NavigateTo("/"));
+
+    #region add tenant term
+    private class TenantTermAddModel
+    {
+        public string? AddError { get; set; }
+    }
+
+    private TenantTermAddModel createUserModel = new();
+
+    private void OpenAddTermModal()
+    {
+        createUserModel = new TenantTermAddModel();
+        JsRuntime.InvokeVoidAsync("DisplayAddTermModal", "show");
+    }
+
+    private async Task HandleCreateModelSubmit()
+    {
+        await Task.CompletedTask;
+        var result = await TenantApi.AddNextMonth(
+            new CheckOrStartTenantTermAndAddAllUserNextMonth(
+                new TenantCode(TenantInformation.Tenant.GetValue().TenantCode),
+                new OamTenantId(TenantInformation.Tenant.GetValue().TenantId)));
+        if (result.IsSuccess)
+        {
+            users = await TenantApi.GetTenantTermList();
+            await JsRuntime.InvokeVoidAsync("DisplayAddTermModal", "hide");
+        } else
+        {
+            createUserModel.AddError = "登録に失敗しました。コードの重複などにご注意ください。";
+        }
+    }
+    #endregion
+
+
+    #region add term users
+    private class TenantTermAddUsersModel
+    {
+        public Guid TermTenantId { get; set; }
+        public string? AddError { get; set; }
+    }
+
+    private TenantTermAddUsersModel addUsersModel = new();
+
+    private void OpenAddUsersModal(OamTermTenantsListQuery.Record user)
+    {
+        addUsersModel = new TenantTermAddUsersModel
+            { TermTenantId = user.TermTenantId };
+        JsRuntime.InvokeVoidAsync("DisplayAddUsersModal", "show");
+    }
+
+    private async Task HandleAddUsersSubmit()
+    {
+        await Task.CompletedTask;
+        var result = await TenantApi.AddAllUserToTermTenant(
+            new AddAllUserToTermTenant(
+                new TenantCode(TenantInformation.Tenant.GetValue().TenantCode),
+                new OamTenantId(TenantInformation.Tenant.GetValue().TenantId),
+                new OamTermTenantId(addUsersModel.TermTenantId)));
+        if (result.IsSuccess)
+        {
+            users = await TenantApi.GetTenantTermList();
+            await JsRuntime.InvokeVoidAsync("DisplayAddUsersModal", "hide");
+        } else
+        {
+            createUserModel.AddError = "登録に失敗しました。コードの重複などにご注意ください。";
+        }
+    }
+    #endregion
+
+}

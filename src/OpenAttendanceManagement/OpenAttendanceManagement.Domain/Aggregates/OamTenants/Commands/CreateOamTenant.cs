@@ -9,7 +9,7 @@ namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 public record CreateOamTenant(TenantCode TenantCode, TenantName TenantName)
     : ITenantCommandWithHandlerAsync<OamTenant, CreateOamTenant>
 {
-    public static Task<ResultBox<UnitValue>> HandleCommandAsync(
+    public static Task<ResultBox<EventOrNone<OamTenant>>> HandleCommandAsync(
         CreateOamTenant command,
         ICommandContext<OamTenant> context) =>
         context

@@ -12,7 +12,7 @@ public record OamTenantAddAuthIdentity(
     TenantCode TenantCode)
     : ITenantCommandWithHandler<OamTenant, OamTenantAddAuthIdentity>
 {
-    public static ResultBox<UnitValue> HandleCommand(
+    public static ResultBox<EventOrNone<OamTenant>> HandleCommand(
         OamTenantAddAuthIdentity command,
         ICommandContext<OamTenant> context) =>
         ResultBox

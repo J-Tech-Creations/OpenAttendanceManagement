@@ -10,8 +10,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.8"/>
         <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.8"/>
         <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8"/>
-        <PackageReference Include="ResultBoxes" Version="0.3.25"/>
-        <PackageReference Include="Sekiban.Core" Version="0.22.0-preview4"/>
+        <PackageReference Include="ResultBoxes" Version="0.3.26"/>
+        <PackageReference Include="Sekiban.Core" Version="0.22.0-preview5"/>
     </ItemGroup>
 
 </Project>

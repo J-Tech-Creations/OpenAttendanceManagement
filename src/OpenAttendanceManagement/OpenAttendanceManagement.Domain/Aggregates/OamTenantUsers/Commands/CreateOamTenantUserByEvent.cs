@@ -8,7 +8,7 @@ public record CreateOamTenantUserByEvent(Event<OamTenantUserAddedToTenant> Tenan
     : ITenantCommandWithHandlerAsync<OamTenantUser, CreateOamTenantUserByEvent>
 {
 
-    public static Task<ResultBox<UnitValue>> HandleCommandAsync(
+    public static Task<ResultBox<EventOrNone<OamTenantUser>>> HandleCommandAsync(
         CreateOamTenantUserByEvent command,
         ICommandContext<OamTenantUser> context) => context
         .AppendEvent(

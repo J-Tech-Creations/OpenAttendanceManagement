@@ -7,7 +7,7 @@ namespace OpenAttendanceManagement.Domain.Aggregates.OamTenants.Commands;
 public record DeleteOamTenant(OamTenantId OamTenantId, TenantCode TenantCode)
     : ITenantCommandWithHandler<OamTenant, DeleteOamTenant>
 {
-    public static ResultBox<UnitValue> HandleCommand(
+    public static ResultBox<EventOrNone<OamTenant>> HandleCommand(
         DeleteOamTenant command,
         ICommandContext<OamTenant> context) => context.AppendEvent(new OamTenantDeleted());
 

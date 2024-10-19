@@ -15,7 +15,7 @@ public record OamTenantCreateUser(
     OamDisplayName DisplayName)
     : ITenantCommandWithHandlerAsync<OamTenant, OamTenantCreateUser>
 {
-    public static Task<ResultBox<UnitValue>> HandleCommandAsync(
+    public static Task<ResultBox<EventOrNone<OamTenant>>> HandleCommandAsync(
         OamTenantCreateUser command,
         ICommandContext<OamTenant> context) =>
         context
