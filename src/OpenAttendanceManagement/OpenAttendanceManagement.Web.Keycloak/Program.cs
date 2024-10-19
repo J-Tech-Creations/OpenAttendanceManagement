@@ -60,6 +60,13 @@ builder.Services.AddScoped(_ => TenantInformation.Empty);
 
 builder.Services.AddDistributedMemoryCache();
 
+builder.Services.AddSingleton(
+    KeycloakSettings.FromAspire(
+        builder.Configuration["services:keycloak:http:0"] ?? string.Empty,
+        "oamtenant",
+        "oamclient",
+        builder.Configuration["services:keycloak:clientSecret"] ?? string.Empty));
+builder.Services.AddTransient<TokenServiceKeycloakClient>();
 var oidcScheme = OpenIdConnectDefaults.AuthenticationScheme;
 
 builder

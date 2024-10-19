@@ -4,7 +4,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 namespace OpenAttendanceManagement.AuthCommon;
 
-public class AuthorizationHandler(IHttpContextAccessor httpContextAccessor) : DelegatingHandler
+public class AuthorizationHandler(
+    IHttpContextAccessor httpContextAccessor,
+    TokenServiceKeycloakClient tokenServiceKeycloak)
+    : DelegatingHandler
 {
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
@@ -25,6 +28,13 @@ public class AuthorizationHandler(IHttpContextAccessor httpContextAccessor) : De
             .Where(claim => claim.Type == "roles")
             .Select(claim => claim.Value)
             .ToList();
+
+        // Check if the token is about to expire in the next 60 seconds
+        if (jwtToken.ValidTo < DateTime.UtcNow.AddSeconds(60))
+        {
+            accessToken = await tokenServiceKeycloak.RefreshTokenAsync();
+            Console.WriteLine("New access token: " + accessToken);
+        }
 
         if (!string.IsNullOrEmpty(accessToken))
         {
