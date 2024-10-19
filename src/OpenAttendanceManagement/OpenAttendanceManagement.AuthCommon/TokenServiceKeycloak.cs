@@ -5,7 +5,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 namespace OpenAttendanceManagement.AuthCommon;
 
-public class TokenServiceKeycloak(IHttpContextAccessor httpContextAccessor)
+public class TokenServiceKeycloak(
+    IHttpContextAccessor httpContextAccessor)
 {
     private RealmAccess Roles
     {

@@ -69,6 +69,14 @@ builder
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddTransient<TokenServiceKeycloak>();
+builder.Services.AddSingleton(
+    KeycloakSettings.FromAspire(
+        builder.Configuration["services:keycloak:http:0"] ?? string.Empty,
+        "oamtenant",
+        "oamclient",
+        builder.Configuration["services:keycloak:clientSecret"] ?? string.Empty));
+builder.Services.AddTransient<TokenServiceKeycloakClient>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
