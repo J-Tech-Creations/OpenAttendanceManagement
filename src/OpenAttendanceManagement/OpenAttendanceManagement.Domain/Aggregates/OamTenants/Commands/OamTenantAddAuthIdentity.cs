@@ -21,7 +21,7 @@ public record OamTenantAddAuthIdentity(
                 _ => context.GetState().Payload.Admins.Any(x => x.Value == command.Email.Value)
                     ? new TenantAdminAlreadyExistsException(command.Email.Value + "はすでに存在しています。")
                     : ExceptionOrNone.None)
-            .Conveyor(_ => context.AppendEvent(new OamTenantAuthIdentityEmailAdded(command.Email)));
+            .Conveyor(_ => EventOrNone.Event(new OamTenantAuthIdentityEmailAdded(command.Email)));
 
     public static Guid SpecifyAggregateId(OamTenantAddAuthIdentity command) => command.OamTenantId.Value;
     public string GetTenantId() => TenantCode.Value;

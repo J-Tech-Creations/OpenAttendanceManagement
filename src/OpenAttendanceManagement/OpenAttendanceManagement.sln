@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.Si
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.SiteAdminWeb.Keycloak", "OpenAttendanceManagement.SiteAdminWeb.Keycloak\OpenAttendanceManagement.SiteAdminWeb.Keycloak.csproj", "{5F3984CE-C9DA-4137-BA74-BBC3A9EDBF9D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAttendanceManagement.Domain.Test", "OpenAttendanceManagement.Domain.Test\OpenAttendanceManagement.Domain.Test.csproj", "{23C11756-B274-40AF-939D-EE72F02AEA09}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,10 @@ Global
 		{5F3984CE-C9DA-4137-BA74-BBC3A9EDBF9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F3984CE-C9DA-4137-BA74-BBC3A9EDBF9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F3984CE-C9DA-4137-BA74-BBC3A9EDBF9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23C11756-B274-40AF-939D-EE72F02AEA09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23C11756-B274-40AF-939D-EE72F02AEA09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23C11756-B274-40AF-939D-EE72F02AEA09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23C11756-B274-40AF-939D-EE72F02AEA09}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
