@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>690cf0e3-dc90-405a-a7da-92d2a945e804</UserSecretsId>
@@ -10,9 +10,9 @@
     <ItemGroup>
         <PackageReference Include="Aspire.Keycloak.Authentication" Version="8.2.1-preview.1.24473.4"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2"/>
-        <PackageReference Include="Sekiban.Infrastructure.Postgres" Version="0.22.0-preview5"/>
-        <PackageReference Include="Sekiban.Web" Version="0.22.0-preview5"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
+        <PackageReference Include="Sekiban.Infrastructure.Postgres" Version="0.22.1" />
+        <PackageReference Include="Sekiban.Web" Version="0.22.1"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0"/>
     </ItemGroup>
 
     <ItemGroup>

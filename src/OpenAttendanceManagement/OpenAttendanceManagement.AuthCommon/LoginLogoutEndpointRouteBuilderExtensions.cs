@@ -17,6 +17,15 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
             .MapGet("/login", () => TypedResults.Challenge(new AuthenticationProperties { RedirectUri = "/" }))
             .AllowAnonymous();
 
+        // group.MapGet("/login", async (HttpContext context) =>
+        // {
+        //     await context.ChallengeAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties
+        //     {
+        //         RedirectUri = "/"
+        //     });
+        //     return TypedResults.Ok();
+        // }).AllowAnonymous();
+
         group.MapPost(
             "/logout",
             () => TypedResults.SignOut(
