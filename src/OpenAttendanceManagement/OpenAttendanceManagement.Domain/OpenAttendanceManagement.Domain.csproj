@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ResultBoxes" Version="0.3.26"/>
-        <PackageReference Include="Sekiban.Core" Version="0.22.0-preview5"/>
+        <PackageReference Include="ResultBoxes" Version="0.3.28"/>
+        <PackageReference Include="Sekiban.Core" Version="0.22.1"/>
     </ItemGroup>
 
     <ItemGroup>
